@@ -1,0 +1,44 @@
+function [spk, firingrate] = ICmodel(s_filt,randomness)
+% main function for calling Fischer's IC model
+
+% ------------------- initialize -------------------
+% path = [cd filesep]; %assuming current directory is set to the root directory of the project
+path = 'Z:\eng_research_hrc_binauralhearinglab\kfchou\ActiveProjects\CISPA2.0\';
+nSpatialChan = 5;
+azList = -90:45:90; %neurons at these locations - subject to change
+
+nf = s_filt.nf;
+n_signal = length(s_filt.sL);
+spk = zeros(n_signal, nf, nSpatialChan); %time x freq x neurons
+firingrate = zeros(nf, n_signal, nSpatialChan);
+
+%load neuron parameters from Fischer's file (?)
+load([path fullfile('IC','/ICcl_CF5300_N150.mat')],'NeuronParms')
+
+% ------------------- ITDs -------------------------
+% load([path fullfile('HRTF','ITD_Kemar_36ch.mat')])
+% translate az from degrees to milliseconds
+% Assume 90 deg = 0.7 ms and -90 deg = -0.7 ms for KEMAR HRTFs
+ITDs = linspace(0.7,-0.7,length(azList)); %milliseconds - assume no freq dependency
+
+% ------------------- ILDs -------------------------
+ildFile = [path fullfile('HRTF',sprintf('ILD_Kemar_%ich_low%i_high%i.mat',nf,s_filt.lowFreq,s_filt.highFreq))];
+if exist(ildFile, 'file') == 2
+    fprintf('using precalculated ILD: low: %dhz, high: %dhz \n',s_filt.lowFreq,s_filt.highFreq)
+    load(ildFile,'ild')
+else
+    disp('calculating ILD')
+    ild = gen_ILD(s_filt.lowFreq,s_filt.highFreq,s_filt.nf,s_filt.fs,[path 'HRTF\']);
+end
+
+
+for i = 1:length(azList) %for each az location
+    ITD_az = ITDs(i);
+    ILD_az = ild(1:nf,i);
+    
+    % get corresponding parameters for ICcl neuron
+    [np, side] = SetLocalizationParameters(ITD_az, ILD_az, nf, NeuronParms);
+    
+    % run model
+    [spk(:, :, i), firingrate(:, :, i), s_filt] = ICcl(s_filt,nf,ITD_az,np,side,randomness);
+end
