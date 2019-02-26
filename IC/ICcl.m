@@ -42,7 +42,7 @@ for i=1:nf
     [spike_train(:,i),spike_times{i,1}] = spike_generator_kc(fr(i,:),time,randomness);
 end
 
-% ------------------------ plots for debugging
+% ------------------------ plots for debugging ------------------------
 figure;
 subplot(2,2,1);imagesc(time,1:64,z)
 colorbar;

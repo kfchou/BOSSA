@@ -3,7 +3,7 @@ function [spk, firingrate] = ICmodel(s_filt,randomness)
 
 % ------------------- initialize -------------------
 % path = [cd filesep]; %assuming current directory is set to the root directory of the project
-path = 'Z:\eng_research_hrc_binauralhearinglab\kfchou\ActiveProjects\CISPA2.0\';
+path = 'C:\Users\kfcho\Documents\GitHub\PISPA2.0\';
 nSpatialChan = 5;
 azList = -90:45:90; %neurons at these locations - subject to change
 

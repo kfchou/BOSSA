@@ -40,10 +40,6 @@ Sx=200*Sx-60;
 % min_sx = min(min(Sx));
 % Sx = (Sx-min_sx)/(max_sx-min_sx)*60-30;
 
-%Combine ITD and ILD inputs and filter << Kenny, this is the ITD and ILD
-%combination step,
-% but it's done additively, no? I don't remember details, but I remember
-% comparing it to the equations in Pena paper and matching. Do you want to
-% look at that now?
-% ok let me pull that up. I see Sx+Sz and was like... ??
+%Combine ITD and ILD inputs and filter
+%De-emphasize the ILD for low frequencies (>350Hz)
 S=lowpass_firstorder(Sx+Sz,4,Ts);
