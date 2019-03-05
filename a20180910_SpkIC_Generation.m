@@ -2,21 +2,21 @@
 addpath('Peripheral');
 addpath('hrtf');
 addpath('IC');
-experiment_name = '003 spatial_tuning IC_spk debug';
+experiment_name = '006 IC spk library';
 dataDir = 'Z:\eng_research_hrc_binauralhearinglab\kfchou\ActiveProjects\CISPA2.0';
 
 %======================== set parameters =======================
 
 % Stimulus parameters
 % Each cell element is a trial
-speakerIdxs = 2;
+speakerIdxs = 1:5;
 talkers = 4;
 % azs = {[0],[0 90], [0 90 -90]};
-% azs = {[0]};
+azs = {[0 90]};
 % azs = num2cell(zeros(1,20)); %for-loop vector must be horizontal. Fun fact.
 % azs = num2cell(-90:10:90);
-azs = num2cell([90]);
-experiment_setup = sprintf('T at 0 talker%d',talkers);
+% azs = num2cell([90]);
+experiment_setup = sprintf('CRM talker%d',talkers);
 
 %peripheral filter parameters
 low_freq = 200; %min freq of the filter
@@ -104,18 +104,30 @@ for az_cell = azs
 end
 
 %%
-addpath('recon')
-% temp = vocode(firingrate(:,:,3)',cf,'tone');
-locs = [-90:45:90];
+% addpath('recon')
+% % temp = vocode(firingrate(:,:,3)',cf,'tone');
+% locs = [-90:45:90];
+% figure;
+% for i = 1:5
+%     subplot(2,3,i)
+%     mask = calcSpkMask(spk_IC(:,:,i),fs,'alpha',0.01);
+%     taxis = 0:1/fs:length(mixed)/fs-1/fs;
+%     imagesc(taxis,cf,mask); set(gca,'ydir','normal')
+%     xlabel('time')
+%     ylabel('frequency')
+%     title([num2str(locs(i)) 'deg cell']);
+% end
+% % temp2 = vocode(mask(:,:,3),cf,'tone',fs);
+% % temp3 = vocode(mask(:,:,5),cf,'tone',fs);
+
+%% plot spike rasters
+addpath('C:\Users\Kenny\Desktop\GitHub\SpatialAttentionNetwork\dependencies')
 figure;
 for i = 1:5
-    subplot(2,3,i)
-    mask = calcSpkMask(spk_IC(:,:,i),fs,'alpha',0.01);
-    taxis = 0:1/fs:length(mixed)/fs-1/fs;
-    imagesc(taxis,cf,mask); set(gca,'ydir','normal')
-    xlabel('time')
-    ylabel('frequency')
-    title([num2str(locs(i)) 'deg cell']);
+    subplot(1,5,i)
+    icSpikes = logical(squeeze(spk_IC(:,:,i))'); 
+    plotSpikeRasterFs(icSpikes, 'PlotType','vertline', 'Fs',40000);
+    xlim([0 2000])
+    if i==1, ylabel('IC spikes'); end
+    set(gca,'Ytick',[1:64],'YtickLabel',cf)
 end
-% temp2 = vocode(mask(:,:,3),cf,'tone',fs);
-% temp3 = vocode(mask(:,:,5),cf,'tone',fs);

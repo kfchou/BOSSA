@@ -1,7 +1,8 @@
-function S=sigILD(z,P)
+function S=sigILD(z,P,f,az)
 %S=sigILD(z,P)
-%   z: extracted energy differences with time
+%   z: input: extracted energy differences with time
 %   P: parameters
+%   f and az: neuron preferred frequency and azimuth, for plotting
 
 %Sizes of vectors
 Lt=length(z);
@@ -19,7 +20,7 @@ R2=((P(:,5)*ones(1,Lt))./(1+exp(-(ones(N,1)*z-(P(:,6)*ones(1,Lt)))./...
 S=R1+R2;
 
 % -------------------- for debugging -------------------
-% figure;
+% h = figure(1);
 % plot(z,R1,'o','color','b')
 % hold on
 % plot(z,R2,'o','color','g')
@@ -38,5 +39,12 @@ S=R1+R2;
 % plot(zz,s,'--','color','r')
 % legend('R1','R2','S_z','r1','r2','ild')
 % xlim([-1, 1])
-% 
+% ylabel('input current')
+% fileLoc = 'Z:\eng_research_hrc_binauralhearinglab\kfchou\ActiveProjects\CISPA2.0\Data\003 spatial_tuning IC ILD debug  64Chan200-8000hz\';
+% imgFolder = sprintf('%d deg cell\\',az);
+% if ~exist([fileLoc imgFolder],'dir'), mkdir([fileLoc imgFolder]); end
+% freq = round(f);
+% filename = [fileLoc imgFolder sprintf('cf %dhz.jpg', freq)];
+% saveas(h, filename);
+% hold off
 

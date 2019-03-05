@@ -1,4 +1,4 @@
-function [S,Sx,Sz,sigild]=genICclInputSignals_KC(yL,yR,z,Xun,Ts,p,side)
+function [S,Sx,Sz,sigild]=genICclInputSignals_KC(yL,yR,z,Xun,Ts,p,side,signal)
 
 %[S,Sx,Sz]=genICclInputSignals(yL,yR,z,Xun,Ts,NP,side)
 %This function gets the current inputs to the ICcl
@@ -10,10 +10,13 @@ function [S,Sx,Sz,sigild]=genICclInputSignals_KC(yL,yR,z,Xun,Ts,p,side)
 %Assumes low pass filtering of inputs, 4ms 
 %Side of the brain (-1 for left, 1 for right, 0 for both-(half and half))
 
-NF=size(z,1); % number of frequency channels
+NF = size(z,1); % number of frequency channels
+Sx = Xun; %ITD input
+Sz = zeros(size(z));
+sigild = zeros(size(z));
 
-Sx=Xun; %ITD input
-Sz=zeros(size(z));
+%find ILD threshold frequency (0 Hz?)
+[~,ix] = min(abs(signal.flist-0));
 for n=1:NF
 %% Get ILD Input
     if side==-1
@@ -24,8 +27,14 @@ for n=1:NF
     E = (yR(n,:));
     end
     
-    sigild(n,:) = sigILD(z(n,:),p(n,:));
-    Sz(n,:) = E.*(sigILD(z(n,:),p(n,:))); % ILD 
+    f = signal.flist(n);
+    if n<=ix %all freq before ILD threshold
+        sigild(n,:) = sigILD(z(n,:),p(n,:),f,signal.az);
+    else
+        sigild(n,:) = sigILD(z(n,:),p(ix,:),f,signal.az);
+    end
+%     Sz(n,:) = E.*(sigILD(z(n,:),p(n,:))); % ILD - original equation
+    Sz(n,:) = E.*sigild(n,:);
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
     
 end

@@ -23,7 +23,7 @@ noise_level = 0;
 x = CrossCorrelation(signal.sL,signal.sR,Ts,DT);
 %% Get input to neurons
 % S = genICclInputSignals_JD_testITDonly(yL,yR,z,x,Ts,np(:,5:end),side);
-[S,Sx,Sz,sigild] = genICclInputSignals_KC(yL,yR,z,x,Ts,np(:,5:end),side); %raw spike rate?
+[S,Sx,Sz,sigild] = genICclInputSignals_KC(yL,yR,z,x,Ts,np(:,5:end),side,signal); %raw spike rate?
 
 %% Spiking LIF model
 % Get spiking probabilities
@@ -43,32 +43,31 @@ for i=1:nf
 end
 
 % ------------------------ plots for debugging ------------------------
-figure;
-subplot(2,2,1);imagesc(time,1:64,z)
-colorbar;
-title('Energy Envelope Difference')
-ylabel('freq chan #')
-xlabel('time (s)')
+% figure;
+% subplot(2,2,1);imagesc(time,1:64,z)
+% colorbar;
+% title('Energy Envelope Difference')
+% ylabel('freq chan #')
+% xlabel('time (s)')
+% 
+% subplot(2,2,2);imagesc(time,1:64,x)
+% title('Cross-Correlation output')
+% colorbar;
+% ylabel('freq chan #')
+% xlabel('time (s)')
+% 
+% subplot(2,2,3);imagesc(time,1:64,sigild)
+% title('ILD response')
+% colorbar;
+% ylabel('freq chan #')
+% xlabel('time (s)')
+% 
+% subplot(2,2,4);imagesc(time,1:64,S)
+% title('filtered (ITD response + envelope*ILD response)')
+% colorbar;
+% ylabel('freq chan #')
+% xlabel('time (s)')
+% 
+% set(gcf, 'Position',  [100, 100, 800, 700])
+% suptitle([num2str(signal.az) 'deg cell'])
 
-subplot(2,2,2);imagesc(time,1:64,x)
-title('Cross-Correlation output')
-colorbar;
-ylabel('freq chan #')
-xlabel('time (s)')
-
-subplot(2,2,3);imagesc(time,1:64,sigild)
-title('ILD response')
-colorbar;
-ylabel('freq chan #')
-xlabel('time (s)')
-
-subplot(2,2,4);imagesc(time,1:64,S)
-title('filtered (ITD response + envelope*ILD response)')
-colorbar;
-ylabel('freq chan #')
-xlabel('time (s)')
-
-set(gcf, 'Position',  [100, 100, 800, 700])
-
-% mt = mtit('source: 0, neuron: 0','fontsize',14,...
-%  	     'xoff',.015,'yoff',.03);

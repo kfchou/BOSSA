@@ -3,7 +3,11 @@ function [spk, firingrate] = ICmodel(s_filt,randomness)
 
 % ------------------- initialize -------------------
 % path = [cd filesep]; %assuming current directory is set to the root directory of the project
-path = 'C:\Users\kfcho\Documents\GitHub\PISPA2.0\';
+if strcmp(getenv('computername'),'KENNY-PC')
+    path = 'C:\Users\Kenny\Desktop\GitHub\PISPA2.0\';
+else
+    path = 'C:\Users\kfcho\Documents\GitHub\PISPA2.0\';
+end
 nSpatialChan = 5;
 azList = -90:45:90; %neurons at these locations - subject to change
 
@@ -35,6 +39,7 @@ end
 for i = 1:length(azList) %for each az location
     ITD_az = ITDs(i);
     ILD_az = ild(1:nf,i);
+    s_filt.az = azList(i);
     
     % get corresponding parameters for ICcl neuron
     [np, side] = SetLocalizationParameters(ITD_az, ILD_az, nf, NeuronParms);
