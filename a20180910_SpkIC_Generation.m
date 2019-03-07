@@ -2,7 +2,7 @@
 addpath('Peripheral');
 addpath('hrtf');
 addpath('IC');
-experiment_name = '006 IC spk library';
+experiment_name = '006 old IC spk library';
 dataDir = 'Z:\eng_research_hrc_binauralhearinglab\kfchou\ActiveProjects\CISPA2.0';
 
 %======================== set parameters =======================

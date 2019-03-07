@@ -3,8 +3,6 @@ function a=genSigmoidActivities(NeuronParms,S)
 % modified by Kenny Chou 2018/8/29
 % changed the steepness parameter of the sigmoidal curve from 0.4122 to
 % variable. Moved center of sigma from -56 to 40.
-%
-% 2019-03-06 reverted back to the original version by Fischer
 
 %a=genSigmoidActivities(NeuronParms,S)
 
@@ -25,16 +23,16 @@ a=DR./(1+exp(-.4122*(V+56.2153)));
 a=a.*(V>-68.2381); 
 
 % modified firing rate - Kenny
-% x0 = 40;
-% steepness = 0.04;
-% a=150./(1+exp(-steepness*(V-x0)));
-% a=a.*(V>-68.2381); 
+x0 = 40;
+steepness = 0.04;
+a=150./(1+exp(-steepness*(V-x0)));
+a=a.*(V>-68.2381); 
 
-% =======  plot - for debugging =======
-% V = -100:.1:100;
-% plot(V,a,'linewidth',2); hold on;
-% 
-% DR = 150.0545;
-% a=DR./(1+exp(-.4122*(V+56.2153)));
-% a=a.*(V>-68.2381); 
-% plot(V,a,'linewidth',2); hold on;
+% not sure what this sections is
+% a = 0.9*V+30;
+% a=a.*(V>-68.2381);
+% a(a<0) = 0;
+
+% plot - for debugging
+V = -100:.1:100;
+plot(V,a,'linewidth',2); hold on;
