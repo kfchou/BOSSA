@@ -44,7 +44,12 @@ slopes =  0.01:0.02:0.4;
 centers = -60:5:0;
 for slope = 1:length(slopes)
     for center = 1:length(centers)
-        theta = [slopes(slope),centers(center),thresh];
-        out(slope,center) = cost(theta,inputs,wavLoc,tgtWavs,tgtSptWavs,mixedWavs);
+%         theta = [slopes(slope),centers(center),thresh];
+%         out(slope,center).st = cost(theta,inputs,wavLoc,tgtWavs,tgtSptWavs,mixedWavs);
+        newCost(slope,center) = 3-sum(mean(out(slope,center).st));
     end
 end
+
+% best parameters so far
+slope = 0.03;
+center = 0;

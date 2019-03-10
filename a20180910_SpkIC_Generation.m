@@ -2,14 +2,14 @@
 addpath('Peripheral');
 addpath('hrtf');
 addpath('IC');
-experiment_name = '006 old IC spk library';
+experiment_name = '006 FRv3 IC spk library';
 dataDir = 'Z:\eng_research_hrc_binauralhearinglab\kfchou\ActiveProjects\CISPA2.0';
 
 %======================== set parameters =======================
 
 % Stimulus parameters
 % Each cell element is a trial
-speakerIdxs = 1:5;
+speakerIdxs = 5;
 talkers = 4;
 % azs = {[0],[0 90], [0 90 -90]};
 azs = {[0 90]};
