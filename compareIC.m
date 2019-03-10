@@ -5,7 +5,7 @@
 % the rasters at the IC stage and see.
 
 oldSpkLoc = 'Z:\eng_research_hrc_binauralhearinglab\kfchou\ActiveProjects\CISPA2.0\Data\006 old IC spk library 64Chan200-8000hz\CRM talker4\';
-newSpkLoc = 'Z:\eng_research_hrc_binauralhearinglab\kfchou\ActiveProjects\CISPA2.0\Data\006 IC spk library 64Chan200-8000hz\CRM talker4\';
+newSpkLoc = 'Z:\eng_research_hrc_binauralhearinglab\kfchou\ActiveProjects\CISPA2.0\Data\006 FRv3 IC spk library 64Chan200-8000hz\CRM talker4\';
 oldSpks = ls([oldSpkLoc '*SpkIC*.mat']);
 newSpks = ls([newSpkLoc '*SpkIC*.mat']);
 tgtWavs = ls([oldSpkLoc '*target.wav']);
@@ -21,7 +21,7 @@ addpath('C:\Users\Kenny\Desktop\GitHub\SpatialAttentionNetwork\dependencies')
 addpath('ObjectiveMeasure')
 addpath('Recon')
 tic
-plotting = 0;
+plotting = 1;
 for j = 1:size(oldSpks,1)
     load([oldSpkLoc oldSpks(j,:)])
     targetLoc = [oldSpkLoc strtrim(tgtWavs(j,:))];

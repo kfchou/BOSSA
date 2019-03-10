@@ -1,10 +1,23 @@
-function a=genSigmoidActivities(NeuronParms,S)
+function a=genSigmoidActivities(NeuronParms,S,slope,center,stop)
+% a=genSigmoidActivities(NeuronParms,S,slope,center)
+% slope and center: parameters of the voltage to firing rate curve
+%                   if not present, use original values by Fischer
+%
 % originally by Brian Fischer
 % modified by Kenny Chou 2018/8/29
 % changed the steepness parameter of the sigmoidal curve from 0.4122 to
 % variable. Moved center of sigma from -56 to 40.
+%
+% 2019-03-06 reverted back to the original version by Fischer
 
-%a=genSigmoidActivities(NeuronParms,S)
+if nargin < 4
+    % Fischer's parameters
+    slope = 0.4122;
+    center = -56.2153;
+    stop = 68.2381
+end
+steepness = slope;
+x0 = center;
 
 %Length of time
 Lt=size(S,2);
@@ -18,21 +31,37 @@ Gain=NeuronParms(:,3)*ones(nf,Lt);
 %Membrane potential
 V=S.*Gain-NeuronParms(:,1)*ones(nf,Lt); 
 
-%Firing rate - from Fischer's model
-a=DR./(1+exp(-.4122*(V+56.2153)));
-a=a.*(V>-68.2381); 
+% Firing rate calculation
+a = 150./(1+exp(-steepness*(V-x0)));
+a = a.*(V>-68.2381);
 
 % modified firing rate - Kenny
-x0 = 40;
-steepness = 0.04;
-a=150./(1+exp(-steepness*(V-x0)));
-a=a.*(V>-68.2381); 
+% steepness = 0.03;
+% x0 = -20;
+% a=150./(1+exp(-steepness*(V-x0)));
+% a=a.*(V>-68.2381); 
 
-% not sure what this sections is
-% a = 0.9*V+30;
-% a=a.*(V>-68.2381);
-% a(a<0) = 0;
-
-% plot - for debugging
-V = -100:.1:100;
-plot(V,a,'linewidth',2); hold on;
+% =======  plot - for debugging =======
+% figure
+% V = -100:.1:100;
+% DR = 150.0545;
+% a=DR./(1+exp(-.4122*(V+56.2153)));
+% a=a.*(V>-68.2381); 
+% 
+% plot(V,a,'linewidth',2); hold on;
+% % modified FR 1
+% x0 = 40;
+% steepness = 0.04;
+% a=150./(1+exp(-steepness*(V-x0)));
+% a=a.*(V>-68.2381); 
+% plot(V,a,'linewidth',2); hold on;
+% 
+% % modified FR 2
+% steepness = 0.03;
+% x0 = -20;
+% a=150./(1+exp(-steepness*(V-x0)));
+% a=a.*(V>-68.2381); 
+% plot(V,a,'linewidth',2); hold on;
+% legend('Fischer IC','Modified v1','Modified v2')
+% xlabel('Voltage in')
+% ylabel('Firing rate')
