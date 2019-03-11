@@ -2,10 +2,9 @@ function [out,rstim1dual,rstim2dual,rstim3] = recon_eval(data,target_wav,target_
 % performs stimulus reconstruction and objective intelligibility assessment on a set of spike trains
 % Inputs:
 %	data: a set of spike trains (from the IC for example)
-%	target_wav_loc: full path to target.wav (str), or its waveform vector
-%	target_spatialized_loc: full path to target_conv.wav, or its waveform
-%	mix_wav_loc: full path to mixed.wav, or its waveform vector
-%   
+%	target_wav_loc: file name (including its path) of the target wave (target.wav)
+%	target_spatialized_loc: file name of the spatialized wave (target_conv.wav)
+%	mix_wav_loc: file name of the sound mixture (target+maskers, mixed.wav)
 % Outputs:
 %	out: STOI scores of three reconstruction methods
 
