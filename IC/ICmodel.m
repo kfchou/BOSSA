@@ -35,8 +35,7 @@ else
     ild = gen_ILD(s_filt.lowFreq,s_filt.highFreq,s_filt.nf,s_filt.fs,[path 'HRTF\']);
 end
 
-
-for i = 3%1:length(azList) %for each az location
+for i = 1:length(azList) %for each az location
     ITD_az = ITDs(i);
     ILD_az = ild(1:nf,i);
     s_filt.az = azList(i);

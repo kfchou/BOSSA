@@ -12,9 +12,14 @@ function a=genSigmoidActivities(NeuronParms,S,slope,center,stop)
 %
 % 2019-03-09 set voltage-FR curve parameters as inputs to the function
 
-% Fischer's parameters
-if ~exist('slope','var'),slope = 0.4122;end
-if ~exist('center','var'),center = -56.2153;end
+% % Fischer's parameters
+% if ~exist('slope','var'),slope = 0.4122;end
+% if ~exist('center','var'),center = -56.2153;end
+% if ~exist('stop','var'),stop = -68.2381;end
+
+% Kenny's Parameters
+if ~exist('slope','var'),slope = 0.03;end
+if ~exist('center','var'),center = 15;end
 if ~exist('stop','var'),stop = -68.2381;end
 steepness = slope;
 x0 = center;
@@ -43,36 +48,36 @@ a = a.*(V>threshold);
 % a=a.*(V>-68.2381); 
 
 % =======  plot - for debugging =======
-figure
-V = -100:.1:100;
-DR = 150.0545;
-a=DR./(1+exp(-.4122*(V+56.2153)));
-a=a.*(V>-68.2381); 
-
-plot(V,a,'linewidth',2); hold on;
-% modified FR 1
-x0 = 40;
-steepness = 0.04;
-a=150./(1+exp(-steepness*(V-x0)));
-a=a.*(V>-68.2381); 
-plot(V,a,'linewidth',2); hold on;
-
-% modified FR 2
-steepness = 0.03;
-x0 = -20;
-a=150./(1+exp(-steepness*(V-x0)));
-a=a.*(V>-68.2381); 
-plot(V,a,'linewidth',2); hold on;
-xlabel('Voltage in')
-ylabel('Firing rate')
-
-% modified FR 3
-steepness = 0.03;
-x0 = 0;
-a=150./(1+exp(-steepness*(V-x0)));
-a=a.*(V>-68.2381); 
-plot(V,a,'linewidth',2); hold on;
-legend('Fischer IC','slope: 0.04, x_0=40','slope: 0.03, x_0=-20','slope: 0.03, x_0=0')
-xlabel('Voltage in')
-ylabel('Firing rate')
-title('IC model neuron - Voltage-FR curve')
+% figure
+% V = -100:.1:100;
+% DR = 150.0545;
+% a=DR./(1+exp(-.4122*(V+56.2153)));
+% a=a.*(V>-68.2381); 
+% 
+% plot(V,a,'linewidth',2); hold on;
+% % modified FR 1
+% x0 = 40;
+% steepness = 0.04;
+% a=150./(1+exp(-steepness*(V-x0)));
+% a=a.*(V>-68.2381); 
+% plot(V,a,'linewidth',2); hold on;
+% 
+% % modified FR 2
+% steepness = 0.03;
+% x0 = -20;
+% a=150./(1+exp(-steepness*(V-x0)));
+% a=a.*(V>-68.2381); 
+% plot(V,a,'linewidth',2); hold on;
+% xlabel('Voltage in')
+% ylabel('Firing rate')
+% 
+% % modified FR 3
+% steepness = 0.03;
+% x0 = 15;
+% a=150./(1+exp(-steepness*(V-x0)));
+% a=a.*(V>-68.2381); 
+% plot(V,a,'linewidth',2); hold on;
+% legend('Fischer IC','slope: 0.04, x_0=40','slope: 0.03, x_0=-20','slope: 0.03, x_0=15')
+% xlabel('Voltage in')
+% ylabel('Firing rate')
+% title('IC model neuron - Voltage-FR curve')

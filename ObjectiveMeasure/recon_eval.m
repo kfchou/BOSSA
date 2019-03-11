@@ -12,7 +12,7 @@ function [out,rstim1dual,rstim2dual,rstim3] = recon_eval(data,target_wav,target_
 temp = data;
 
 %% set up reference
-if isa(target_wav,'str')
+if isa(target_wav,'char')
     target = audioread(target_wav);
     targetLR = audioread(target_spatialized);
     mixed = audioread(mix_wav);

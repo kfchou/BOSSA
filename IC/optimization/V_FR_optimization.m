@@ -1,5 +1,5 @@
-% do gradient ascent to maximuze STOI measures, as a function of voltage-FR
-% parameters.
+% do both brute search and gradient ascent to maximuze STOI measures, 
+% as a function of voltage-FR parameters.
 %
 % IC voltage-FR parameters to vary
 slope = 0.03;
@@ -14,7 +14,7 @@ addpath('Recon')
 addpath('Peripheral')
 inputLoc = 'IC\optimization\';
 wavLoc = 'Z:\eng_research_hrc_binauralhearinglab\kfchou\ActiveProjects\CISPA2.0\Data\006 wav library\';
-inputs = ls([inputLoc '*.mat']);
+inputs = ls([inputLoc '*Sigmoid*.mat']);
 tgtWavs = ls([wavLoc '*target.wav']);
 tgtSptWavs = ls([wavLoc '*target_conv.wav']);
 mixedWavs = ls([wavLoc '*mixed.wav']);
@@ -38,7 +38,7 @@ params = load(inputs(1,:),'nparams','cf','fcoefs');
 out = cost(theta0,inputs,wavLoc,tgtWavs,tgtSptWavs,mixedWavs);
 initCost = 3-sum(mean(out)); %initial cost
 
-% optimize
+% optimize w/ gradient descent
 theta = theta0*1.1;
 currentCost = initCost;
 tic
@@ -58,17 +58,27 @@ addpath('C:\Users\Kenny\Dropbox\Sen Lab\m-toolboxes\insomnia')
 insomnia('on','verbose');
 
 slopes =  0.01:0.02:0.4;
-centers = -60:5:0;
+centers = -60:5:50;
 tic
-for slope = 18:length(slopes)
+for slope = 1:length(slopes)
     for center = 1:length(centers)
         theta = [slopes(slope),centers(center),thresh];
         out(slope,center).st = cost(theta,sigmoid,wavs,params);
         newCost(slope,center) = 3-sum(mean(out(slope,center).st));
+        filtCost(slope,center) = 1-mean(out(slope,center).st(:,1));
+        envCost(slope,center) = 1-mean(out(slope,center).st(:,2));
+        vocCost(slope,center) = 1-mean(out(slope,center).st(:,3));
     end
 end
 toc
 insomnia('off','verbose');
 % best parameters so far
 slope = 0.03;
-center = 0;
+center = 15;
+
+figure;
+imagesc(centers,slopes,vocCost);
+xlabel('Centers, X_0')
+ylabel('Slopes')
+% title('cost function: 3-sum(mean(STOI))')
+title('cost function: voc recon')
