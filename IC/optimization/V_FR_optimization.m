@@ -82,3 +82,28 @@ xlabel('Centers, X_0')
 ylabel('Slopes')
 % title('cost function: 3-sum(mean(STOI))')
 title('cost function: voc recon')
+
+%% Now vary over threshold
+slope = 0.03;
+center = 15;
+threshes = -65:.2:-60;
+tic
+for thresh = 1:length(threshes)
+    theta = [slope,center,threshes(thresh)];
+    out(thresh).st = cost(theta,sigmoid,wavs,params);
+    newCost(thresh) = 3-sum(mean(out(thresh).st));
+    filtCost(thresh) = 1-mean(out(thresh).st(:,1));
+    envCost(thresh) = 1-mean(out(thresh).st(:,2));
+    vocCost(thresh) = 1-mean(out(thresh).st(:,3));
+end
+toc
+
+figure;
+plot(threshes,newCost/max(newCost));
+hold on;
+plot(threshes,filtCost/max(filtCost))
+plot(threshes,envCost/max(envCost))
+plot(threshes,vocCost/max(vocCost))
+legend('avg','filt','env','voc')
+ylabel('normalized cost')
+xlabel('cutoff threshold')

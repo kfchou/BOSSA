@@ -2,17 +2,17 @@
 addpath('Peripheral');
 addpath('hrtf');
 addpath('IC');
-experiment_name = '006 FRv3 IC spk library';
+experiment_name = '006 FRv4 IC spk library';
 dataDir = 'Z:\eng_research_hrc_binauralhearinglab\kfchou\ActiveProjects\CISPA2.0';
 
 %======================== set parameters =======================
 
 % Stimulus parameters
 % Each cell element is a trial
-speakerIdxs = 5;
+speakerIdxs = 1:5;
 talkers = 4;
 % azs = {[0],[0 90], [0 90 -90]};
-azs = {[0 90]};
+azs = {[0 90 -90]};
 % azs = num2cell(zeros(1,20)); %for-loop vector must be horizontal. Fun fact.
 % azs = num2cell(-90:10:90);
 % azs = num2cell([90]);
@@ -121,13 +121,13 @@ end
 % % temp3 = vocode(mask(:,:,5),cf,'tone',fs);
 
 %% plot spike rasters
-addpath('C:\Users\Kenny\Desktop\GitHub\SpatialAttentionNetwork\dependencies')
-figure;
-for i = 1:5
-    subplot(1,5,i)
-    icSpikes = logical(squeeze(spk_IC(:,:,i))'); 
-    plotSpikeRasterFs(icSpikes, 'PlotType','vertline', 'Fs',40000);
-    xlim([0 2000])
-    if i==1, ylabel('IC spikes'); end
-    set(gca,'Ytick',[1:64],'YtickLabel',cf)
-end
+% addpath('C:\Users\Kenny\Desktop\GitHub\SpatialAttentionNetwork\dependencies')
+% figure;
+% for i = 1:5
+%     subplot(1,5,i)
+%     icSpikes = logical(squeeze(spk_IC(:,:,i))'); 
+%     plotSpikeRasterFs(icSpikes, 'PlotType','vertline', 'Fs',40000);
+%     xlim([0 2000])
+%     if i==1, ylabel('IC spikes'); end
+%     set(gca,'Ytick',[1:64],'YtickLabel',cf)
+% end

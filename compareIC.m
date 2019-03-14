@@ -23,21 +23,21 @@ addpath('Recon')
 tic
 plotSpks = 1;
 for j = 1:size(oldSpks,1)
-    load([oldSpkLoc oldSpks(j,:)])
+%     load([oldSpkLoc oldSpks(j,:)])
     targetLoc = [oldSpkLoc strtrim(tgtWavs(j,:))];
     targetSpatializedLoc = [oldSpkLoc strtrim(tgtSptWavs(j,:))];
     mixedLoc = [oldSpkLoc strtrim(mixedWavs(j,:))];
-    if plotSpks
-        figure;
-        for i = 1:5
-            subplot(2,5,i)
-            icSpikes = logical(squeeze(spk_IC(:,:,i))'); 
-            plotSpikeRasterFs(icSpikes, 'PlotType','vertline', 'Fs',40000);
-            xlim([0 2000])
-            if i==1, ylabel('Old IC Spikes'); end
-            set(gca,'Ytick',[1:64],'YtickLabel',cf)
-        end
-    end
+%     if plotSpks
+%         figure;
+%         for i = 1:5
+%             subplot(2,5,i)
+%             icSpikes = logical(squeeze(spk_IC(:,:,i))'); 
+%             plotSpikeRasterFs(icSpikes, 'PlotType','vertline', 'Fs',40000);
+%             xlim([0 2000])
+%             if i==1, ylabel('Old IC Spikes'); end
+%             set(gca,'Ytick',[1:64],'YtickLabel',cf)
+%         end
+%     end
 %     [oldOut(j,:),rstim1o(j).wav,rstim2o(j).wav,rstim3o(j).wav] = recon_eval(spk_IC(:,:,3),targetLoc,targetSpatializedLoc,mixedLoc,params);
 
     load([newSpkLoc newSpks(j,:)])
@@ -51,7 +51,7 @@ for j = 1:size(oldSpks,1)
             set(gca,'Ytick',[1:64],'YtickLabel',cf)
         end
     end
-%     [newOut(j,:),rstim1n(j).wav,rstim2n(j).wav,rstim3n(j).wav] = recon_eval(spk_IC(:,:,3),targetLoc,targetSpatializedLoc,mixedLoc,params);
+    [newOut(j,:),wav(j).rstim1,wav(j).rstim2,wav(j).rstim3] = recon_eval(spk_IC(:,:,3),targetLoc,targetSpatializedLoc,mixedLoc,params);
 
 end
 toc
@@ -68,3 +68,10 @@ toc
 % xlim([0.4 0.75])
 % ylim([0.4 0.75])
 % line([0 1],[0 1])
+
+loc = 'Z:\eng_research_hrc_binauralhearinglab\kfchou\ActiveProjects\CISPA2.0\Data\006 FRv4 IC spk library 64Chan200-8000hz\CRM talker4\';
+for j = 1:5
+audiowrite(sprintf('%srecon_2_masker_set_%02i_00_90deg_filt.wav',loc,j),wav(j).rstim1/max(max(abs(wav(j).rstim1))),fs)
+audiowrite(sprintf('%srecon_2_masker_set_%02i_00_90deg_env.wav',loc,j),wav(j).rstim2/max(max(abs(wav(j).rstim2))),fs)
+audiowrite(sprintf('%srecon_2_masker_set_%02i_00_90deg_voc.wav',loc,j),wav(j).rstim3/max(max(abs(wav(j).rstim3))),fs)
+end
