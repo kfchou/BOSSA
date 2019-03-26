@@ -36,33 +36,43 @@ P = inputParser;
 % interleave = P.Results.interleave;
 % cf_cutoff = P.Results.cutoff_freq;
 
+maskedWavL = mask(:,1:n).*wavL(:,1:n)./frgain;
+maskedWavR = mask(:,1:n).*wavR(:,1:n)./frgain;
 switch method
     case 'filt' %spike-mask filtered stimulus
         %apply to filtered mixture
-        extractedOriginalL = mask(:,1:n).*wavL(:,1:n)./frgain;
-        extractedOriginalR = mask(:,1:n).*wavR(:,1:n)./frgain;
-        rstimL = sum(extractedOriginalL);
-        rstimR = sum(extractedOriginalR);
+        rstimL = sum(maskedWavL);
+        rstimR = sum(maskedWavR);
         rstimDual = [rstimL' rstimR'];
         rstimMono = rstimL + rstimR;
         rstimMono = rstimMono/max(abs(rstimMono));
     case 'env' %vocoded spike-mask filtered stimulus
         %apply to envelope of filtered mixture
-        extractedEnvL = mask(:,1:n).*wavL(:,1:n)./frgain;
-        extractedEnvR = mask(:,1:n).*wavR(:,1:n)./frgain;
-        rstimL = vocode(extractedEnvL,cf,'tone');
-        rstimR = vocode(extractedEnvR,cf,'tone');
+        rstimL = vocode(maskedWavL,cf,'tone');
+        rstimR = vocode(maskedWavR,cf,'tone');
         rstimDual = [rstimL rstimR];
         rstimMono = rstimL + rstimR;
         rstimMono = rstimMono/max(abs(rstimMono));
     case 'noise' %applies mixed/hybrid vocoding to the mask-modulated envelopes
         fs = 40000;
-        extractedEnvL = mask(:,1:n).*wavL(:,1:n)./frgain;
-        extractedEnvR = mask(:,1:n).*wavR(:,1:n)./frgain;
-        rstimL = vocode(extractedEnvL,cf,'noise',fs);
-        rstimR = vocode(extractedEnvR,cf,'noise',fs);
+        rstimL = vocode(maskedWavL,cf,'noise',fs);
+        rstimR = vocode(maskedWavR,cf,'noise',fs);
         rstimDual = [rstimL rstimR];
         rstimMono = rstimL + rstimR;
+        rstimMono = rstimMono/max(abs(rstimMono));
+    case 'mixed'
+        fs = 40000;
+        fcutoff = 2000;
+        [~,rstimToneL] = vocode(maskedWavL,cf,'tone');
+        [~,rstimToneR] = vocode(maskedWavR,cf,'tone');
+        [~,rstimNoiseL] = vocode(maskedWavL,cf,'noise',fs);
+        [~,rstimNoiseR] = vocode(maskedWavR,cf,'noise',fs);
+        rstimL = rstimToneL;
+        rstimL(cf>fcutoff,:) = rstimNoiseL(cf>fcutoff,:);
+        rstimR = rstimToneR;
+        rstimR(cf>fcutoff,:) = rstimNoiseR(cf>fcutoff,:);
+        rstimDual = [sum(rstimL); sum(rstimR)]';
+        rstimMono = sum(rstimL) + sum(rstimR);
         rstimMono = rstimMono/max(abs(rstimMono));
     otherwise
         disp('method not supported')

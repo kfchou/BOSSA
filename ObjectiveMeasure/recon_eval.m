@@ -1,4 +1,4 @@
-function [out,rstim1dual,rstim2dual,rstim3] = recon_eval(data,target_wav,target_spatialized,mix_wav,params)
+function [out,rstim1dual,rstim2dual,rstim3,rstim4dual] = recon_eval(data,target_wav,target_spatialized,mix_wav,params)
 % performs stimulus reconstruction and objective intelligibility assessment on a set of spike trains
 % Inputs:
 %	data: a set of spike trains (from the IC for example)
@@ -63,8 +63,11 @@ st1 = runStoi(rstim1mono,targetLRmono,fs,fs);
 [rstim2dual, rstim2mono] = applyMask(spkMask,mixedEnvL,mixedEnvR,frgain,'env',cf);
 st2 = runStoi(rstim2mono,targetLRmono,fs,fs);
 
+[rstim4dual, rstim4mono] = applyMask(spkMask,mixedEnvL,mixedEnvR,frgain,'mixed',cf);
+st4 = runStoi(rstim4mono,targetLRmono,fs,fs);
+
 % Vocoded-SpikeMask
 rstim3 = vocode(spkMask,cf,'tone');
 st3 = runStoi(rstim3,target,fs,fs);
 
-out = [st1 st2 st3];
+out = [st1 st2 st3 st4];

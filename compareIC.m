@@ -5,7 +5,7 @@
 % the rasters at the IC stage and see.
 
 oldSpkLoc = 'Z:\eng_research_hrc_binauralhearinglab\kfchou\ActiveProjects\CISPA2.0\Data\006 old IC spk library 64Chan200-8000hz\CRM talker4\';
-newSpkLoc = 'Z:\eng_research_hrc_binauralhearinglab\kfchou\ActiveProjects\CISPA2.0\Data\006 FRv4 IC spk library 64Chan200-8000hz\CRM talker4\';
+newSpkLoc = 'Z:\eng_research_hrc_binauralhearinglab\kfchou\ActiveProjects\CISPA2.0\Data\006 FRv4 IC spk library 64Chan200-8000hz optimized\CRM 2source talker4\';
 oldSpks = ls([oldSpkLoc '*SpkIC*.mat']);
 newSpks = ls([newSpkLoc '*SpkIC*.mat']);
 tgtWavs = ls([oldSpkLoc '*target.wav']);
@@ -17,16 +17,19 @@ params.fcoefs = fcoefs;
 params.cf = cf;
 params.fs = fs;
 
+addpath('Plotting')
+addpath('Peripheral')
 addpath('C:\Users\Kenny\Desktop\GitHub\SpatialAttentionNetwork\dependencies')
 addpath('ObjectiveMeasure')
 addpath('Recon')
 tic
 plotSpks = 1;
 for j = 1:size(oldSpks,1)
-%     load([oldSpkLoc oldSpks(j,:)])
     targetLoc = [oldSpkLoc strtrim(tgtWavs(j,:))];
     targetSpatializedLoc = [oldSpkLoc strtrim(tgtSptWavs(j,:))];
     mixedLoc = [oldSpkLoc strtrim(mixedWavs(j,:))];
+    
+%     load([oldSpkLoc oldSpks(j,:)])
 %     if plotSpks
 %         figure;
 %         for i = 1:5
@@ -51,7 +54,7 @@ for j = 1:size(oldSpks,1)
             set(gca,'Ytick',[1:64],'YtickLabel',cf)
         end
     end
-    [newOut(j,:),wav(j).rstim1,wav(j).rstim2,wav(j).rstim3] = recon_eval(spk_IC(:,:,3),targetLoc,targetSpatializedLoc,mixedLoc,params);
+    [newOut(j,:),wav(j).rstim1,wav(j).rstim2,wav(j).rstim3,wav(j).rstim4] = recon_eval(spk_IC(:,:,3),targetLoc,targetSpatializedLoc,mixedLoc,params);
 
 end
 toc
@@ -69,9 +72,10 @@ toc
 % ylim([0.4 0.75])
 % line([0 1],[0 1])
 
-loc = 'Z:\eng_research_hrc_binauralhearinglab\kfchou\ActiveProjects\CISPA2.0\Data\006 FRv4 IC spk library 64Chan200-8000hz\CRM talker4\';
+loc = 'Z:\eng_research_hrc_binauralhearinglab\kfchou\ActiveProjects\CISPA2.0\Data\006 FRv4 IC spk library 64Chan200-8000hz optimized\CRM 2source talker4\';
 for j = 1:5
-audiowrite(sprintf('%srecon_2_masker_set_%02i_00_90deg_filt.wav',loc,j),wav(j).rstim1/max(max(abs(wav(j).rstim1))),fs)
-audiowrite(sprintf('%srecon_2_masker_set_%02i_00_90deg_env.wav',loc,j),wav(j).rstim2/max(max(abs(wav(j).rstim2))),fs)
-audiowrite(sprintf('%srecon_2_masker_set_%02i_00_90deg_voc.wav',loc,j),wav(j).rstim3/max(max(abs(wav(j).rstim3))),fs)
+% audiowrite(sprintf('%srecon_2_masker_set_%02i_00_90deg_filt.wav',loc,j),wav(j).rstim1/max(max(abs(wav(j).rstim1))),fs)
+% audiowrite(sprintf('%srecon_2_masker_set_%02i_00_90deg_env.wav',loc,j),wav(j).rstim2/max(max(abs(wav(j).rstim2))),fs)
+% audiowrite(sprintf('%srecon_2_masker_set_%02i_00_90deg_voc.wav',loc,j),wav(j).rstim3/max(max(abs(wav(j).rstim3))),fs)
+audiowrite(sprintf('%srecon_2_masker_set_%02i_00_90deg_mix.wav',loc,j),wav(j).rstim4/max(max(abs(wav(j).rstim4))),fs)
 end
