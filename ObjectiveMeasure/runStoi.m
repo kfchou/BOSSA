@@ -28,6 +28,10 @@ if ~isrow(b)
     b = b';
 end
 
+%normalize inputs
+a = a/max(abs(a));
+b = b/max(abs(b));
+
 %timewarp
 if ~exist('warp','var'), warp = 0; end
 if warp; b = timeMatch(a,b,fs_a,fs_b,0,0); end
