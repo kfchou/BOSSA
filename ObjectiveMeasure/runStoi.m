@@ -4,6 +4,22 @@ function out = runStoi(a,b,fs_a,fs_b,warp)
 %matches the lenths of the input vectors before calling stoi()
 %zeropadding is applied to the end of the shorter vector
 
+%combine channels
+if ismatrix(a)
+    if size(a,1) > size(a,2)
+        a = sum(a,2); 
+    else
+        a = sum(a);
+    end
+end
+if ismatrix(b)
+    if size(b,1) > size(b,2)
+        b = sum(b,2); 
+    else
+        b = sum(b);
+    end
+end
+
 %check row or vector
 if ~isrow(a)
     a = a';
