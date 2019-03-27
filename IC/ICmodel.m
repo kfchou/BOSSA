@@ -44,5 +44,5 @@ for i = 1:length(azList) %for each az location
     [np, side] = SetLocalizationParameters(ITD_az, ILD_az, nf, NeuronParms);
     
     % run model
-    [spk(:, :, i), firingrate(:, :, i), s_filt] = ICcl(s_filt,nf,ITD_az,np,side,randomness);
+    [spk(:, :, i), firingrate(:, :, i), ~] = ICcl(s_filt,nf,ITD_az,np,side,randomness);
 end
