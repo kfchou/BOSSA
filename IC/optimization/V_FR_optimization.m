@@ -62,8 +62,8 @@ centers = -60:5:50;
 tic
 for slope = 1:length(slopes)
     for center = 1:length(centers)
-        theta = [slopes(slope),centers(center),thresh];
-        out(slope,center).st = cost(theta,sigmoid,wavs,params);
+%         theta = [slopes(slope),centers(center),thresh];
+%         out(slope,center).st = cost(theta,sigmoid,wavs,params);
         newCost(slope,center) = 3-sum(mean(out(slope,center).st));
         filtCost(slope,center) = 1-mean(out(slope,center).st(:,1));
         envCost(slope,center) = 1-mean(out(slope,center).st(:,2));
@@ -77,12 +77,19 @@ slope = 0.03;
 center = 15;
 
 figure;
-imagesc(centers,slopes,vocCost);
+newCost(newCost==0) = NaN;
+[X,Y] = meshgrid(centers,slopes);
+h1 = surf(X,Y,newCost,'LineStyle','none');
 xlabel('Centers, X_0')
 ylabel('Slopes')
-% title('cost function: 3-sum(mean(STOI))')
-title('cost function: voc recon')
+zlabel('avg cost')
+title('cost function: avg recon')
+% caxis([min(min(newCost(newCost>0)))*0.99 max(max(newCost))])
 
+% for fun: mark cell of interest
+[row,col]=find(newCost==min(min(newCost(newCost>0))));
+hold on;
+h2 = plot3(centers(col),slopes(row),newCost(row,col),'Color','r','Marker','.')
 %% Now vary over threshold
 slope = 0.03;
 center = 15;
