@@ -1,5 +1,6 @@
 function [out,rstim1dual,rstim2dual,rstim3,rstim4dual] = recon_eval(data,target_wav,target_spatialized,mix_wav,params)
 % performs stimulus reconstruction and objective intelligibility assessment on a set of spike trains
+% out = recon_eval(data,target_wav,target_spatialized,mix_wav,params)
 % Inputs:
 %	data: a set of spike trains (from the IC for example)
 %	target_wav_loc: full path to target.wav (str), or its waveform vector
