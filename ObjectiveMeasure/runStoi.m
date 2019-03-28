@@ -1,18 +1,23 @@
 function out = runStoi(a,b,fs_a,fs_b,warp)
-%out = RUNSTOI(a,b,fs)
-% warp = option to timewarp.
-%matches the lenths of the input vectors before calling stoi()
-%zeropadding is applied to the end of the shorter vector
+% out = RUNSTOI(a,b,fs)
+%   Calculates STOI on two soundwaves
+%   matches the lenths of the input vectors before calling stoi()
+%   zeropadding is applied to the end of the shorter vector
+% Inputs:
+%   a, b = soundwaves. If dual channel, combine the two.
+%   warp = option to timewarp.
+
+
 
 %combine channels
-if ismatrix(a)
+if ~isvector(a)
     if size(a,1) > size(a,2)
         a = sum(a,2); 
     else
         a = sum(a);
     end
 end
-if ismatrix(b)
+if ~isvector(b)
     if size(b,1) > size(b,2)
         b = sum(b,2); 
     else
