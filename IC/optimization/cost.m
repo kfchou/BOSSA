@@ -1,4 +1,12 @@
 function out = cost(theta0,inputs,wavs,params)
+% cost function: out = cost(theta0,inputs,wavs,params)
+% Using some inputs, generate spikes with different IC
+% parameters, THETA. Reconstruct and calculate STOI w/ recon_eval().
+% WAVS: Reference waveforms
+% PARAMS: params for recon_eval
+%
+% by Kenny Chou
+% 2019-03-29
 sigmoid = inputs;
 slope = theta0(1);
 center = theta0(2);
@@ -22,5 +30,5 @@ for j = 1:5
 
     % 3. Reconstruction
     params.fs = fs;
-    [out(j,:),rstim1o(j).wav,rstim2o(j).wav,rstim3o(j).wav] = recon_eval(spk,wavs(j).tgt,wavs(j).tgtLR,wavs(j).mix,params);
+    [out(j,:),rstim] = recon_eval(spk,wavs(j).tgt,wavs(j).tgtLR,wavs(j).mix,params);
 end
