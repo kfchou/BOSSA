@@ -18,6 +18,7 @@ function [out,rstim] = recon_eval(data,target_wav,target_spatialized,mix_wav,par
 %       .numChannel
 % Outputs:
 %	out: STOI scores of three reconstruction methods
+%       ['filt' 'env' 'voc' 'mix' 'mix+pp']
 %   rstim: a structure of reconstructed stimuli, with fields
 %       .r1d = rstim1dual;
 %       .r1m = rstim1mono;
@@ -85,6 +86,9 @@ st2 = runStoi(rstim2mono,targetLRmono,fs,fs);
 [rstim4dual, rstim4mono] = applyMask(spkMask,mixedEnvL,mixedEnvR,frgain,'mixed',cf);
 st4 = runStoi(rstim4mono,targetLRmono,fs,fs);
 
+rstim4pp = runF0(rstim4dual,fs);
+st4pp = runStoi(rstim4pp,targetLRmono,fs,fs);
+
 % Vocoded-SpikeMask
 rstim3 = vocode(spkMask,cf,'tone');
 st3 = runStoi(rstim3,target,fs,fs);
@@ -97,4 +101,7 @@ rstim.r3 = rstim3;
 rstim.r4d = rstim4dual;
 rstim.r4m = rstim4mono;
 rstim.mask = spkMask;
-out = [st1 st2 st3 st4];
+rstim.r4pp = rstim4pp;
+out = [st1 st2 st3 st4 st4pp];
+
+disp('eval complete')
