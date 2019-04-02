@@ -101,6 +101,8 @@ switch method
         end
         reconMat = temp;
         recon = sum(temp);
+    otherwise
+        error('vocode method not supported')
 end
 
 out = recon;
