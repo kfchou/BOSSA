@@ -90,7 +90,11 @@ rstim4pp = runF0(rstim4dual,fs);
 st4pp = runStoi(rstim4pp,targetLRmono,fs,fs);
 
 % Vocoded-SpikeMask
-rstim3 = vocode(spkMask,cf,'tone');
+fcutoff = 2000;
+rstim3t = vocode(spkMask,cf,'tone');
+rstim3n = vocode(spkMask,cf,'noise',fs);
+rstim3 = rstim3t;
+rstim3(cf>fcutoff,:) = rstim3n(cf>fcutoff,:);
 st3 = runStoi(rstim3,target,fs,fs);
 
 rstim.r1d = rstim1dual;
