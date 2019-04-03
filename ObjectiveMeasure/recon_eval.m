@@ -16,6 +16,8 @@ function [out,rstim] = recon_eval(data,target_wav,target_spatialized,mix_wav,par
 %       .low_freq
 %       .high_freq
 %       .numChannel
+%       ----- other options -----
+%       .maskRatio
 % Outputs:
 %	out: STOI scores of three reconstruction methods
 %       ['filt' 'env' 'voc' 'mix' 'mix+pp']
@@ -27,9 +29,8 @@ function [out,rstim] = recon_eval(data,target_wav,target_spatialized,mix_wav,par
 %       .r3 = rstim3;
 %       .r4d = rstim4dual;
 %       .r4m = rstim4mono;
+%       .r4pp = rstim4pp; (post-processed)
 %       .mask = spkMask;
-
-temp = data;
 
 %% set up reference
 if isa(target_wav,'char')
@@ -74,8 +75,20 @@ for i = 1:nf
 end
 
 %% reconstruction
-spkMask = calcSpkMask(temp,fs,'alpha',params.tau);
+masks = calcSpkMask(data,fs,'alpha',params.tau);
+if ndims(masks) == 3
+    centerM = masks(:,:,3);
+    centerM = centerM/max(max(centerM));
+    sideM = masks(:,:,5);
+    sideM = sideM/max(max(sideM));
+    spkMask = centerM-0.5*sideM;
+    spkMask(spkMask<0)=0;
+else
+    spkMask = masks;
+end
 
+[rstimC,~] = applyMask(centerM,mixedFiltL,mixedFiltR,frgain,'filt');
+st = runStoi(rstimC,targetLRmono,fs,fs)
 % mixture carrier reconstruction
 [rstim1dual, rstim1mono] = applyMask(spkMask,mixedFiltL,mixedFiltR,frgain,'filt');
 st1 = runStoi(rstim1mono,targetLRmono,fs,fs);
