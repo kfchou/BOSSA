@@ -1,9 +1,21 @@
-function [mixed, s] = stimulus_setup(talker,pair,az,input_gain, inputAudio)
+function [mixed, s] = stimulus_setup(talker,pair,az,input_gain,inputAudio)
 % [mixed, s] = stimulus_setup(talker,pair,az,input_gain, snr)
 % loads length(az) numbers of CRM sentences
-% PAIR is the set of talkers defined by the corresponding .mat file
-% if PAIR = 'training', then a training sentence is used.
 % applies HRTF according to az (azimuth) locations
+% PAIR can be:
+%   - a scalar, indicatding the idx number of a pre-define set of sentences
+%   - 'training'
+%   - 'other', and inputAudio must be defined
+%   - a cell with the format {'xxxxxx','xxxxxx',...}, where each 'xxxxx'
+%       indicate the name of a CRM file (without '.bin')
+%
+% Kenny Chou
+% 2019-04-03
+% Boston University, HRC
+%
+% future work: 
+%   add option for adjusting TMR
+%   add option for another corpus set
 
 path = CRMpath;
 addpath(path);
@@ -12,40 +24,41 @@ if strcmp(pair,'training')
     s.wav = audioread([path 'Talker 4' filesep 'talker4_training.wav']);
 elseif strcmp(pair,'other')
     s.wav = inputAudio;
+elseif iscell(pair)
+    if length(pair{1}) == 6 && ischar(pair{1}) %accepts filename of CRM .bin
+        for ii = 1:length(pair)
+            filename = [path 'Talker ' num2str(talker) '\' pair{1} '.bin'];
+            s(ii).wav = readbin(filename);
+            s(ii).source = pair;
+            s(ii).az = az(ii);
+        end
+    end
 else     
-    if ~iscell(pair)
 %         if length(az) <= 2
 %             stim_name = 'CRMnumber20pairs_Oct-25_17.mat'; %pairs of talkers from the CRM corpus, no repeated keywords in each pair. Covers all keywords.
-        if length(az) <= 3
-            stim_name = 'CRMnumber_3source_40pairs_Nov-22_18.mat';
-        elseif length(az) == 4
-            stim_name = 'CRM_4source_20pair_005c.mat';
-        elseif length (az) == 5
-            stim_name = 'CRMnumber_5source_20170214.mat';
-        end
-        load([path 'keywords.mat'])
-        load([path stim_name])
+    if length(az) <= 3
+        stim_name = 'CRMnumber_3source_40pairs_Nov-22_18.mat';
+    elseif length(az) == 4
+        stim_name = 'CRM_4source_20pair_005c.mat';
+    elseif length (az) == 5
+        stim_name = 'CRMnumber_5source_20170214.mat';
+    end
+    load([path 'keywords.mat'])
+    load([path stim_name])
 
 
-        % load stimuli; 1 stimuli for each azmuth location
-        if length(az) ~= length(talker)
-            if length(talker) == 1
-                talker = ones(size(az))*talker;
-            else
-                disp('talker and az must have the same length');
-            end
+    % load stimuli; 1 stimuli for each azmuth location
+    if length(az) ~= length(talker)
+        if length(talker) == 1
+            talker = ones(size(az))*talker;
+        else
+            disp('talker and az must have the same length');
         end
-        for ii = 1:length(az)
-            filename = [path 'Talker ' num2str(talker(ii)) '\' upper(crm_number{pair,ii})];
-            s(ii).wav = readbin(filename);
-            s(ii).source = crm_number{pair,ii};
-        end
-    else
-        for ii = 1:length(pair)
-            filename = [path 'Talker ' num2str(talker) '\' pair{ii}];
-            s(ii).wav = readbin(filename);
-            s(ii).source = pair{ii};
-        end
+    end
+    for ii = 1:length(az)
+        filename = [path 'Talker ' num2str(talker(ii)) '\' upper(crm_number{pair,ii})];
+        s(ii).wav = readbin(filename);
+        s(ii).source = crm_number{pair,ii};
     end
 end
 
