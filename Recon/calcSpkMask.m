@@ -24,4 +24,4 @@ tempc = zeros(size(spks));
 for n = 1:numNeurons
     tempc(:,:,n) = conv2(spks(:,:,n),A','same');
 end
-mask = tempc';
+mask = permute(tempc,[2 1 3]);
