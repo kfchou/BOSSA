@@ -8,6 +8,7 @@ function [out,rstim] = recon_eval(data,target_wav,target_spatialized,mix_wav,par
 %	mix_wav_loc: full path to mixed.wav, or its waveform vector
 %   params: structure with fields
 %       .fs - mandatory, and either
+%       .tau - mask computation kernel time constant
 %       -------- option 1: ------
 %       .cf,
 %       .coefs, or
@@ -81,20 +82,18 @@ if ndims(masks) == 3
     centerM = centerM/max(max(centerM));
     sideM = masks(:,:,5);
     sideM = sideM/max(max(sideM));
-    spkMask = centerM-0.5*sideM;
+    spkMask = centerM-params.maskRatio*sideM;
     spkMask(spkMask<0)=0;
 else
     spkMask = masks;
 end
 
-[rstimC,~] = applyMask(centerM,mixedFiltL,mixedFiltR,frgain,'filt');
-st = runStoi(rstimC,targetLRmono,fs,fs)
 % mixture carrier reconstruction
 [rstim1dual, rstim1mono] = applyMask(spkMask,mixedFiltL,mixedFiltR,frgain,'filt');
 st1 = runStoi(rstim1mono,targetLRmono,fs,fs);
 %apply to envelope of filtered mixture
-[rstim2dual, rstim2mono] = applyMask(spkMask,mixedEnvL,mixedEnvR,frgain,'env',cf);
-st2 = runStoi(rstim2mono,targetLRmono,fs,fs);
+% % [rstim2dual, rstim2mono] = applyMask(spkMask,mixedEnvL,mixedEnvR,frgain,'env',cf);
+% % st2 = runStoi(rstim2mono,targetLRmono,fs,fs);
 
 [rstim4dual, rstim4mono] = applyMask(spkMask,mixedEnvL,mixedEnvR,frgain,'mixed',cf);
 st4 = runStoi(rstim4mono,targetLRmono,fs,fs);
@@ -103,22 +102,23 @@ rstim4pp = runF0(rstim4dual,fs);
 st4pp = runStoi(rstim4pp,targetLRmono,fs,fs);
 
 % Vocoded-SpikeMask
-fcutoff = 2000;
-rstim3t = vocode(spkMask,cf,'tone');
-rstim3n = vocode(spkMask,cf,'noise',fs);
-rstim3 = rstim3t;
-rstim3(cf>fcutoff,:) = rstim3n(cf>fcutoff,:);
-st3 = runStoi(rstim3,target,fs,fs);
+% % fcutoff = 2000;
+% % rstim3t = vocode(spkMask,cf,'tone');
+% % rstim3n = vocode(spkMask,cf,'noise',fs);
+% % rstim3 = rstim3t;
+% % rstim3(cf>fcutoff,:) = rstim3n(cf>fcutoff,:);
+% % st3 = runStoi(rstim3,target,fs,fs);
 
+% compile output waveforms
 rstim.r1d = rstim1dual;
 rstim.r1m = rstim1mono;
-rstim.r2d = rstim2dual;
-rstim.r2m = rstim2mono;
-rstim.r3 = rstim3;
+% % rstim.r2d = rstim2dual;
+% % rstim.r2m = rstim2mono;
+% % rstim.r3 = rstim3;
 rstim.r4d = rstim4dual;
 rstim.r4m = rstim4mono;
 rstim.mask = spkMask;
 rstim.r4pp = rstim4pp;
-out = [st1 st2 st3 st4 st4pp];
+out = [st1 st4 st4pp];
 
 disp('eval complete')

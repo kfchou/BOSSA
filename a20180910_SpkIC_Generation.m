@@ -2,17 +2,18 @@
 addpath('Peripheral');
 addpath('hrtf');
 addpath('IC');
-experiment_name = '006 FRv4 IC spk library';
+experiment_name = '003 spatial leakage';
 dataDir = 'Z:\eng_research_hrc_binauralhearinglab\kfchou\ActiveProjects\CISPA2.0';
 
 %======================== set parameters =======================
 
 % Stimulus parameters
 % Each cell element is a trial
-speakerIdxs = 1:5;
+speakerIdxs = 5:5;
+% speakerIdxs = {{'030105'}};
 talkers = 4;
-% azs = {[0],[0 90], [0 90 -90]};
-azs = {[0 90 -90]};
+% azs = {[0],[90], [0 90]};
+azs = {[90]};
 % azs = num2cell(zeros(1,20)); %for-loop vector must be horizontal. Fun fact.
 % azs = num2cell(-90:10:90);
 % azs = num2cell([90]);
@@ -48,10 +49,17 @@ fcoefs=MakeERBFilters(40000,cf,low_freq);
 
 for az_cell = azs
     az = cell2mat(az_cell);
-
+    
     for speakerIdx = speakerIdxs
-        trial_id = sprintf(['%d_masker_set_%02d_pos' repmat('_%02d',1,length(az)) 'degAz'],length(az)-1,speakerIdx,az)
-        [s_mixed, s_original] = stimulus_setup(talkers,speakerIdx,az,input_gain,snr);
+        if iscell(speakerIdx)
+            if length(az) ~= length(speakerIdx{1}), error('undefined configuration');end
+            binnum = str2num(cell2mat(speakerIdx{1}'))';
+            trial_id = sprintf(['%d_masker' repmat('_%06d',1,length(speakerIdx{1})) '_pos' repmat('_%02d',1,length(az)) 'degAz'],length(az)-1,binnum,az)
+            [s_mixed, s_original] = stimulus_setup(talkers,speakerIdx{1},az,input_gain,snr);
+        else
+            trial_id = sprintf(['%d_masker_set_%02d_pos' repmat('_%02d',1,length(az)) 'degAz'],length(az)-1,speakerIdx,az)
+            [s_mixed, s_original] = stimulus_setup(talkers,speakerIdx,az,input_gain,snr);
+        end
         mixed = [s_mixed.sL s_mixed.sR];
         mixed = mixed/max(max(abs(mixed)));
         audiowrite(sprintf('%s%s_mixed.wav',dataLoc,trial_id),mixed,fs);
@@ -99,7 +107,17 @@ for az_cell = azs
         [spk_IC, firingrate] = ICmodel(s_filt,randonmess);
         toc
         save(sprintf('%s%s_SpkIC.mat',dataLoc,trial_id),'spk_IC','freqGainNorm','input_gain','cf','fcoefs');
-
+        
+        addpath('Plotting');
+        figure;
+        for i = 1:5
+            subplot(1,5,i)
+            icSpikes = logical(squeeze(spk_IC(:,:,i))'); 
+            plotSpikeRasterFs(icSpikes, 'PlotType','vertline', 'Fs',40000);
+            xlim([0 2000])
+            if i==1, ylabel('IC spikes'); end
+            set(gca,'Ytick',[1:64],'YtickLabel',cf)
+        end
     end
 end
 
