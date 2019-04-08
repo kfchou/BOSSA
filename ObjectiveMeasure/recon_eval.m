@@ -80,10 +80,11 @@ masks = calcSpkMask(data,fs,'alpha',params.tau);
 if ndims(masks) == 3
     centerM = masks(:,:,3);
     centerM = centerM/max(max(centerM));
-    sideM = masks(:,:,5);
-    sideM = sideM/max(max(sideM));
-    spkMask = centerM-params.maskRatio*sideM;
-    spkMask(spkMask<0)=0;
+    rightM = masks(:,:,5);
+    rightM = rightM/max(max(rightM));
+    leftM = masks(:,:,1);
+    leftM = leftM/max(max(leftM));
+    spkMask = centerM-params.maskRatio*(rightM+leftM); spkMask(spkMask<0)=0;
 else
     spkMask = masks;
 end
