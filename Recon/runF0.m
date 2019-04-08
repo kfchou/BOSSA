@@ -2,7 +2,7 @@ function recon = runF0(rstim4,fs)
 
 % the syntax uses an older version of voicebox
 addpath('C:\Users\Kenny\Dropbox\Sen Lab\phase_estimation_temp\voicebox')
-
+addpath('C:\Users\kfcho\Dropbox\Sen Lab\phase_estimation_temp\voicebox')
 % parameters
 hamSize = 6;
 maskingParams.nHarmonics = 20;
