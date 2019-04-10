@@ -1,3 +1,7 @@
+% runs recon_eval on IC spikes
+% tests various methods of reconstruction methods
+% plot STOIs
+cd('C:\Users\Kenny\Desktop\GitHub\PISPA2.0');
 addpath('Plotting')
 addpath('Peripheral')
 addpath('C:\Users\Kenny\Desktop\GitHub\SpatialAttentionNetwork\dependencies')
@@ -36,19 +40,19 @@ disp('finished')
 figure;
 for i = 1:5
 temp = cell2mat(out(:,i));
-scatter(ratios,temp(:,3),'linewidth',2); hold on;
+scatter(ratios,temp(:,1),'linewidth',2); hold on;
 xlabel('ratios')
 ylabel('STOI')
 legend(cellstr(num2str((1:5)')))
-title('CRM 2 masker sets, post-processed after vocoding')
+title('CRM 2 masker sets, mask-filtered')
 end
 
 %% save audio
 for i = 1:5
-    wav1 = rstim(12,4).r1d;
+    wav1 = rstim(12,i).r1d;
     name1 = sprintf('%srecon_2_masker_set_%02i_00_90_filt_minusOffChanMask.wav',spkLoc,i);
-    audiowrite(name1,wav1,fs);
-    wav2 = rstim(12,4).r4pp;
+    audiowrite(name1,wav1/max(abs(wav1)),fs);
+    wav2 = rstim(12,i).r4pp;
     name2 = sprintf('%srecon_2_masker_set_%02i_00_90_filtMixVocPP_minusOffChanMask.wav',spkLoc,i);
-    audiowrite(name2,wav2,fs);
+    audiowrite(name2,wav2/max(abs(wav2)),fs);
 end
