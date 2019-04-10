@@ -162,8 +162,10 @@ if strcmp(maskingParams.region,'v')
 end
 f0Mask(fxraw>maskingParams.fcutoff,:) = 1;
 
-% apply mask to spectrogram
+% -------- apply mask to spectrogram --------
+% [~,idx] = min(abs(fxraw-300));
 BmagThresh = Bmag;
+% BmagThresh(1:idx,:) = randn(size(BmagThresh(1:idx,:)))*10E-6;
 Bmagf0 = BmagThresh.*f0Mask;
 
 % re-synthesize
@@ -179,7 +181,7 @@ if debugParam.plotting
     set(gca,'ydir','normal')
     ylim([0,8000])
 
-    figure; imagesc(tx,fxraw,20*log(Bmagf0))
+    figure; imagesc(tx,fxraw,real(20*log(Bmagf0)))
     set(gca,'ydir','normal')
     ylim([0,8000])
     title('f0mask emphasized')

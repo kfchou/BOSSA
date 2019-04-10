@@ -9,6 +9,7 @@ function [out,rstim] = recon_eval(data,target_wav,target_spatialized,mix_wav,par
 %   params: structure with fields
 %       .fs - mandatory, and either
 %       .tau - mask computation kernel time constant
+%       .spatialChan - spatial channel to be reconstructed
 %       -------- option 1: ------
 %       .cf,
 %       .coefs, or
@@ -84,8 +85,13 @@ if ndims(masks) == 3
     rightM = rightM/max(max(rightM));
     leftM = masks(:,:,1);
     leftM = leftM/max(max(leftM));
-    spkMask = centerM-params.maskRatio*(rightM+leftM);
-    spkMask(spkMask<0)=0;
+    if params.spatialChan == 3
+        maskRatio = params.maskRatio*ones(size(centerM));
+        spkMask = centerM-maskRatio.*(rightM+leftM);
+        spkMask(spkMask<0)=0;
+    else
+        error('only the mask for the center spatial channel is implemented');
+    end
 else
     spkMask = masks;
 end
@@ -104,23 +110,23 @@ rstim4pp = runF0(rstim4dual,fs);
 st4pp = runStoi(rstim4pp,targetLRmono,fs,fs);
 
 % Vocoded-SpikeMask
-% % fcutoff = 2000;
-% % rstim3t = vocode(spkMask,cf,'tone');
-% % rstim3n = vocode(spkMask,cf,'noise',fs);
-% % rstim3 = rstim3t;
-% % rstim3(cf>fcutoff,:) = rstim3n(cf>fcutoff,:);
-% % st3 = runStoi(rstim3,target,fs,fs);
+fcutoff = 2000;
+rstim3t = vocode(spkMask,cf,'tone');
+rstim3n = vocode(spkMask,cf,'noise',fs);
+rstim3 = rstim3t;
+rstim3(cf>fcutoff,:) = rstim3n(cf>fcutoff,:);
+st3 = runStoi(rstim3,target,fs,fs);
 
 % compile output waveforms
 rstim.r1d = rstim1dual;
 rstim.r1m = rstim1mono;
 % % rstim.r2d = rstim2dual;
 % % rstim.r2m = rstim2mono;
-% % rstim.r3 = rstim3;
+rstim.r3 = rstim3;
 rstim.r4d = rstim4dual;
 rstim.r4m = rstim4mono;
 rstim.mask = spkMask;
 rstim.r4pp = rstim4pp;
-out = [st1 st4 st4pp];
+out = [st1 st3 st4 st4pp];
 
 disp('eval complete')
