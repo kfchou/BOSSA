@@ -7,7 +7,7 @@ function [out,rstim] = recon_eval(data,target_wav,target_spatialized,mix_wav,par
 %	target_spatialized_loc: full path to target_conv.wav, or its waveform
 %	mix_wav_loc: full path to mixed.wav, or its waveform vector
 %   params: structure with fields
-%       .fs - mandatory, and either
+%       .fs - mandatory
 %       .tau - mask computation kernel time constant
 %       .spatialChan - spatial channel to be reconstructed
 %       -------- option 1: ------
@@ -91,7 +91,8 @@ if ndims(masks) == 3
     leftM45 = leftM45/max(max(leftM45));
     if params.spatialChan == 3
         maskRatio = params.maskRatio*ones(size(centerM));
-        spkMask = centerM-maskRatio.*(rightM+leftM+leftM45+rightM45);
+%         spkMask = centerM-maskRatio.*(rightM+leftM+leftM45+rightM45);
+        spkMask = centerM-maskRatio.*(rightM+leftM);
         spkMask(spkMask<0)=0;
     else
         error('only the mask for the center spatial channel is implemented');

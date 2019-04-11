@@ -43,7 +43,8 @@ load([path fullfile('IC','/ICcl_CF5300_N150.mat')],'NeuronParms')
 % translate az from degrees to milliseconds
 a = 9.3395; % radius of KEMAR's head
 c = 34300; % speed of sound, cm/s
-ITDs = -a/c*(azList*pi/180+sin(azList*pi/180)); % woodworth formula; negative sign is necessary
+ITDs = -a/c*(azList*pi/180+sin(azList*pi/180))*1000; %woodworth formula; negative sign is necessary\
+ITDs = ITDs*1000; %conver to ms
 ILDs = gen_ILD(s_filt.lowFreq,s_filt.highFreq,s_filt.nf,s_filt.fs,azList,saveLoc);
 
 % -------------------------- Run Model ----------------------------

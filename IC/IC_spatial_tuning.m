@@ -84,17 +84,17 @@ for j = 1:length(azList)
 end
 suptitle('total firing activity per frequency channel')
 
-%% firing rates (2) - same as (1)
-figure;
-for j = 1:length(azList)
-    for i = 1:nPositions
-        spkPerChan(i,:) = sum(spks(i).FR(:,:,j),2)';
-    end
-    subplot(3,3,j)
-    imagesc(sourcePositions,cf,spkPerChan')
-    ylabel('freq channel CFs')
-    xlabel('noise source azimuth')
-    set(gca,'ydir','normal')
-    title(sprintf('%i deg az neurons',azList(j)))
-end
-suptitle('total firing activity per frequency channel')
+% %% firing rates (2) - same as (1)
+% figure;
+% for j = 1:length(azList)
+%     for i = 1:nPositions
+%         spkPerChan(i,:) = sum(spks(i).FR(:,:,j),2)';
+%     end
+%     subplot(3,3,j)
+%     imagesc(sourcePositions,cf,spkPerChan')
+%     ylabel('freq channel CFs')
+%     xlabel('noise source azimuth')
+%     set(gca,'ydir','normal')
+%     title(sprintf('%i deg az neurons',azList(j)))
+% end
+% suptitle('total firing activity per frequency channel')
