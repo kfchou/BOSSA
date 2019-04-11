@@ -2,7 +2,7 @@ function [ild,params] = gen_ILD(low,high,numChan,fs,directions,savePath)
 
 input_gain = 500;
 if ~exist('directions','var')
-    directions = [-90 -60 -45 -30 0 30 45 60 90];
+    directions = [-90 -45 0 45 90];
 end
 
 for i = 1:length(directions)

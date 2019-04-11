@@ -34,7 +34,7 @@ numChannel = 64;
 fcoefs=MakeERBFilters(fs,cf,low_freq);
 
 gain = 1500;
-parfor i = 1:nPositions
+for i = 1:nPositions
     tic
     s_filt = struct();
     s_filt.sL=ERBFilterBank(sentencesL(:,i)*gain,fcoefs); %freq*time
@@ -49,14 +49,15 @@ parfor i = 1:nPositions
 
     % IC model module.
     randomness = 1;
-    [spks(i).spk_IC, spks(i).FR] = ICmodel(s_filt,randomness);
+    azList = [-90,-60,-45,-30,0,30,45,60,90]; %model neuron locations
+    [spks(i).spk_IC, spks(i).FR] = ICmodel(s_filt,azList,randomness);
     toc
 end
 
 % save('IC_characterization_freq_tuning_30_deg.m','spk_IC','firingrate','sourcePositions');
 
 %% activity = number of total spikes
-for j = 1:5
+for j = 1:length(azList)
     for i = 1:nPositions
         numSpk(i,j) = sum(sum(spks(i).spk_IC(:,:,j)));
     end
@@ -66,9 +67,9 @@ plot(sourcePositions,numSpk,'linewidth',2);
 ylabel('spike count (all freq channels)')
 xlabel('azimuth')
 title('total spike count v noise location')
-legend(cellstr(num2str((-90:45:90)')))
+legend(cellstr(num2str(azList')))
 
-for j = 1:5
+for j = 1:length(azList)
     for i = 1:nPositions
         spkPerChan(i,:) = sum(spks(i).spk_IC(:,:,j));
     end
