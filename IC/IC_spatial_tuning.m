@@ -69,14 +69,32 @@ xlabel('azimuth')
 title('total spike count v noise location')
 legend(cellstr(num2str(azList')))
 
+%% firing rates (1)
+figure;
 for j = 1:length(azList)
     for i = 1:nPositions
         spkPerChan(i,:) = sum(spks(i).spk_IC(:,:,j));
     end
-    figure;
+    subplot(3,3,j)
     imagesc(sourcePositions,cf,spkPerChan')
     ylabel('freq channel CFs')
-    xlabel('azimuth')
+    xlabel('noise source azimuth')
     set(gca,'ydir','normal')
-    title('firing rate v frequency channel')
+    title(sprintf('%i deg az neurons',azList(j)))
 end
+suptitle('total firing activity per frequency channel')
+
+%% firing rates (2) - same as (1)
+figure;
+for j = 1:length(azList)
+    for i = 1:nPositions
+        spkPerChan(i,:) = sum(spks(i).FR(:,:,j),2)';
+    end
+    subplot(3,3,j)
+    imagesc(sourcePositions,cf,spkPerChan')
+    ylabel('freq channel CFs')
+    xlabel('noise source azimuth')
+    set(gca,'ydir','normal')
+    title(sprintf('%i deg az neurons',azList(j)))
+end
+suptitle('total firing activity per frequency channel')

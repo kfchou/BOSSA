@@ -1,4 +1,5 @@
 function [ild,params] = gen_ILD(low,high,numChan,fs,directions,savePath)
+% [ild,params] = gen_ILD(low,high,numChan,fs,directions,savePath)
 
 input_gain = 500;
 if ~exist('directions','var')
