@@ -8,8 +8,9 @@ if strcmp(getenv('computername'),'KENNY-PC')
 else
     path = 'C:\Users\kfcho\Documents\GitHub\PISPA2.0\';
 end
-nSpatialChan = 5;
-azList = -90:45:90; %neurons at these locations - subject to change
+% azList = -90:45:90; %neurons at these locations - subject to change
+azList = [-90,-60,-45,-30,0,30,45,60,90];
+nSpatialChan = length(azList);
 
 nf = s_filt.nf;
 n_signal = length(s_filt.sL);
@@ -23,7 +24,10 @@ load([path fullfile('IC','/ICcl_CF5300_N150.mat')],'NeuronParms')
 % load([path fullfile('HRTF','ITD_Kemar_36ch.mat')])
 % translate az from degrees to milliseconds
 % Assume 90 deg = 0.7 ms and -90 deg = -0.7 ms for KEMAR HRTFs
-ITDs = linspace(0.7,-0.7,length(azList)); %milliseconds - assume no freq dependency
+a = 9.3395; % radius of KEMAR's head
+c = 34300; % speed of sound, cm/s
+ITDs = -a/c*(azList*pi/180+sin(azList*pi/180)); % woodworth formula; negative sign is necessary
+
 
 % ------------------- ILDs -------------------------
 ildFile = [path fullfile('HRTF',sprintf('ILD_Kemar_%ich_low%i_high%i.mat',nf,s_filt.lowFreq,s_filt.highFreq))];
@@ -37,7 +41,7 @@ end
 
 for i = 1:length(azList) %for each az location
     ITD_az = ITDs(i);
-    ILD_az = ild(1:nf,i);
+    ILD_az = ild(:,i);
     s_filt.az = azList(i);
     
     % get corresponding parameters for ICcl neuron

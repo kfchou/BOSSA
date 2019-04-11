@@ -53,8 +53,8 @@ a = a.*(V>threshold);
 % DR = 150.0545;
 % a=DR./(1+exp(-.4122*(V+56.2153)));
 % a=a.*(V>-68.2381); 
-% 
 % plot(V,a,'linewidth',2); hold on;
+% 
 % % modified FR 1
 % x0 = 40;
 % steepness = 0.04;
@@ -77,7 +77,8 @@ a = a.*(V>threshold);
 % a=150./(1+exp(-steepness*(V-x0)));
 % a=a.*(V>-68.2381); 
 % plot(V,a,'linewidth',2); hold on;
-% legend('Fischer IC','slope: 0.04, x_0=40','slope: 0.03, x_0=-20','slope: 0.03, x_0=15')
 % xlabel('Voltage in')
 % ylabel('Firing rate')
 % title('IC model neuron - Voltage-FR curve')
+% legend('Fischer IC','slope: 0.04, x_0=40','slope: 0.03, x_0=-20','slope: 0.03, x_0=15')
+% % legend('Fischer IC','slope: 0.03, x_0=15')
