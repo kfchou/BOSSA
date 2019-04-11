@@ -83,11 +83,15 @@ if ndims(masks) == 3
     centerM = centerM/max(max(centerM));
     rightM = masks(:,:,5);
     rightM = rightM/max(max(rightM));
+    rightM45 = masks(:,:,4);
+    rightM45 = rightM45/max(max(rightM45));
     leftM = masks(:,:,1);
     leftM = leftM/max(max(leftM));
+    leftM45 = masks(:,:,1);
+    leftM45 = leftM45/max(max(leftM45));
     if params.spatialChan == 3
         maskRatio = params.maskRatio*ones(size(centerM));
-        spkMask = centerM-maskRatio.*(rightM+leftM);
+        spkMask = centerM-maskRatio.*(rightM+leftM+leftM45+rightM45);
         spkMask(spkMask<0)=0;
     else
         error('only the mask for the center spatial channel is implemented');
