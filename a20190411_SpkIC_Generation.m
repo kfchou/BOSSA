@@ -5,18 +5,18 @@
 addpath('Peripheral');
 addpath('hrtf');
 addpath('IC');
-experiment_name = '006 old IC spk library 64Chan200-8000hz';
+experiment_name = '007 ITD fixed spk library 64Chan200-8000hz';
 dataDir = 'Z:\eng_research_hrc_binauralhearinglab\kfchou\ActiveProjects\CISPA2.0';
 
 %======================== set parameters =======================
 
 % Stimulus parameters
 % Each cell element is a trial
-speakerIdxs = 5:5;
+speakerIdxs = 1:5;
 % speakerIdxs = {{'030105'}};
 talkers = 4;
 % azs = {[0],[90], [0 90]};
-azs = {[0,90]};
+azs = {[0,-90,90]};
 % azs = num2cell(zeros(1,20)); %for-loop vector must be horizontal. Fun fact.
 % azs = num2cell(-90:10:90);
 % azs = num2cell([90]);
@@ -109,20 +109,10 @@ for az_cell = azs
         randomness = 1;
         azList = [-90,-45,0,45,90];
         tic
-        [spk_IC, firingrate] = ICmodel(s_filt,azList,randonmess);
+        [spk_IC, firingrate] = ICmodel(s_filt,azList,randomness);
         toc
         save(sprintf('%s%s_SpkIC.mat',dataLoc,trial_id),'spk_IC','freqGainNorm','input_gain','cf','fcoefs');
         
-        addpath('Plotting');
-        figure;
-        for i = 1:5
-            subplot(1,5,i)
-            icSpikes = logical(squeeze(spk_IC(:,:,i))'); 
-            plotSpikeRasterFs(icSpikes, 'PlotType','vertline', 'Fs',40000);
-            xlim([0 2000])
-            if i==1, ylabel('IC spikes'); end
-            set(gca,'Ytick',[1:64],'YtickLabel',cf)
-        end
     end
 end
 

@@ -2,7 +2,7 @@
 addpath('Peripheral');
 addpath('hrtf');
 addpath('IC');
-experiment_name = '003 spatial leakage';
+experiment_name = '006 old IC spk library 64Chan200-8000hz';
 dataDir = 'Z:\eng_research_hrc_binauralhearinglab\kfchou\ActiveProjects\CISPA2.0';
 
 %======================== set parameters =======================
@@ -13,7 +13,7 @@ speakerIdxs = 5:5;
 % speakerIdxs = {{'030105'}};
 talkers = 4;
 % azs = {[0],[90], [0 90]};
-azs = {[90]};
+azs = {[0,90]};
 % azs = num2cell(zeros(1,20)); %for-loop vector must be horizontal. Fun fact.
 % azs = num2cell(-90:10:90);
 % azs = num2cell([90]);
@@ -44,8 +44,9 @@ currentfile=strcat(FileName, '.m');
 copyfile(currentfile,newbackup);
 
 %peripheral filtering parameters
+fs = 40000; %CRM sampling freq
 [nf,cf,bw] = getFreqChanInfo('erb',numChannel,low_freq,high_freq);
-fcoefs=MakeERBFilters(40000,cf,low_freq);
+fcoefs=MakeERBFilters(fs,cf,low_freq);
 
 for az_cell = azs
     az = cell2mat(az_cell);

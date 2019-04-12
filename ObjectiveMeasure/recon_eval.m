@@ -85,12 +85,12 @@ if ndims(masks) == 3
         masksNorm(:,:,i) = masks(:,:,i)/max(max(masks(:,:,i)));
     end
     centerM = masksNorm(:,:,3);
-    rightM = masksNorm(:,:,5);
-    rightM45 = masksNorm(:,:,4);
-    leftM = masksNorm(:,:,1);
-    leftM45 = masksNorm(:,:,1);
+    rightM1 = masksNorm(:,:,5);
+    rightM2 = masksNorm(:,:,4);
+    leftM1 = masksNorm(:,:,1);
+    leftM2 = masksNorm(:,:,2);
     if params.spatialChan == 3
-        spkMask = centerM-params.maskRatio.*(rightM+leftM+leftM45+rightM45);
+        spkMask = centerM-params.maskRatio.*(rightM1+leftM1+leftM2+rightM2);
 %         spkMask = spkMask-params.maskRatio.*(masks(:,:,1)+masks(:,:,5));
         spkMask(spkMask<0)=0;
     else

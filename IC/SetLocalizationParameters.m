@@ -4,7 +4,7 @@ function [np, side] = SetLocalizationParameters(preferredITD,ild,nf,NeuronParms)
 %   AZ: Azmuth, in degrees. Supports az in the range of [-90:5:90]
 %   NF: number of frequency bands
 % Outputs:
-%   PREFERREDITD: 7:.35:-.7 milliseconds
+%   PREFERREDITD: ITDs, milliseconds
 %   NP: Neuron Parameters, saved previously
 %   SIDE: Left (-1), Right (1), or middle (0)
 % Assuming freq channels from 100 to 8k hz
