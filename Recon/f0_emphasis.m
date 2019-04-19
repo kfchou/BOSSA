@@ -132,7 +132,7 @@ Braw=rfft(sf,frameLen,2);
 Braw = Braw';
 Bmag = abs(Braw);
 fxraw = [0:frameLen-1]/frameLen*fs;
-fxraw = fxraw(1:frameLen/2);
+fxraw = fxraw(1:floor(frameLen/2));
     
 if debugParam.plotting
     figure;

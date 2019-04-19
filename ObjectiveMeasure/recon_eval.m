@@ -84,6 +84,8 @@ if ndims(masks) == 3
     for i = 1:size(masks,3)
         masksNorm(:,:,i) = masks(:,:,i)/max(max(masks(:,:,i)));
     end
+    
+    % remove side channels
     centerM = masksNorm(:,:,3);
     rightM1 = masksNorm(:,:,5);
     rightM2 = masksNorm(:,:,4);
@@ -91,7 +93,6 @@ if ndims(masks) == 3
     leftM2 = masksNorm(:,:,2);
     if params.spatialChan == 3
         spkMask = centerM-params.maskRatio.*(rightM1+leftM1+leftM2+rightM2);
-%         spkMask = spkMask-params.maskRatio.*(masks(:,:,1)+masks(:,:,5));
         spkMask(spkMask<0)=0;
     else
         error('only the mask for the center spatial channel is implemented');
@@ -114,23 +115,23 @@ rstim4pp = runF0(rstim4dual,fs);
 st4pp = runStoi(rstim4pp,targetLRmono,fs,fs);
 
 % Vocoded-SpikeMask
-fcutoff = 2000;
-rstim3t = vocode(spkMask,cf,'tone');
-rstim3n = vocode(spkMask,cf,'noise',fs);
-rstim3 = rstim3t;
-rstim3(cf>fcutoff,:) = rstim3n(cf>fcutoff,:);
-st3 = runStoi(rstim3,target,fs,fs);
+% fcutoff = 2000;
+% rstim3t = vocode(spkMask,cf,'tone');
+% rstim3n = vocode(spkMask,cf,'noise',fs);
+% rstim3 = rstim3t;
+% rstim3(cf>fcutoff,:) = rstim3n(cf>fcutoff,:);
+% st3 = runStoi(rstim3,target,fs,fs);
 
 % compile output waveforms
 rstim.r1d = rstim1dual;
 rstim.r1m = rstim1mono;
 % % rstim.r2d = rstim2dual;
 % % rstim.r2m = rstim2mono;
-rstim.r3 = rstim3;
+% rstim.r3 = rstim3;
 rstim.r4d = rstim4dual;
 rstim.r4m = rstim4mono;
 rstim.mask = spkMask;
 rstim.r4pp = rstim4pp;
-out = [st1 st3 st4 st4pp];
+out = [st1 st4 st4pp];
 
 disp('eval complete')
