@@ -3,9 +3,11 @@
 cd('C:\Users\Kenny\Desktop\GitHub\PISPA2.0')
 addpath('Peripheral')
 addpath('IC')
+addpath('HRTF')
 % generate wgn
-fs = 40000;
+fs = 44100;
 noise = wgn(1,50000,1);
+noise2 = wgn(1,50000,1);
 
 % spatialize wgn
 sourcePositions = [-90:5:90];
@@ -24,7 +26,8 @@ end
 % apply impulse responses
 sentencesL = fftfilt(hrtfL,noise);
 sentencesR = fftfilt(hrtfR,noise);
-
+sentences2L = fftfilt(hrtfL,noise2);
+sentences2R = fftfilt(hrtfR,noise2);
 %% frequency filtering
 low_freq = 150; %min freq of the filter
 high_freq = 8000;
@@ -38,8 +41,8 @@ gain = 1500;
 for i = 1:nPositions
     tic
     s_filt = struct();
-    s_filt.sL=ERBFilterBank(sentencesL(:,i)*gain,fcoefs); %freq*time
-    s_filt.sR=ERBFilterBank(sentencesR(:,i)*gain,fcoefs);
+    s_filt.sL=ERBFilterBank((sentencesL(:,i)+sentences2L(:,19))./2*gain,fcoefs); %freq*time
+    s_filt.sR=ERBFilterBank((sentencesR(:,i)+sentences2R(:,19))./2*gain,fcoefs);
     s_filt.band = 'narrow';
     s_filt.BW = bw;
     s_filt.flist = cf;
@@ -78,20 +81,22 @@ title('total spike count v noise location')
 legend(cellstr(num2str(azList')))
 
 %% firing rates (1)
-figure;
-for j = 1:length(azList)
+% figure;
+for j = [2,4,5,6,8]%1:length(azList)
     for i = 1:nPositions
         spkPerChan(i,:) = sum(spks(i).spk_IC(:,:,j));
     end
     figure;
-    subplot(3,3,j)
+%     subplot(3,3,j)
     imagesc(sourcePositions,cf,spkPerChan')
     ylabel('freq channel CFs')
     xlabel('noise source azimuth')
     set(gca,'ydir','normal')
     title(sprintf('%i deg az neurons',azList(j)))
+    colorbar;
+    caxis([0 1000])
 end
-suptitle('total firing activity per frequency channel')
+% suptitle('total firing activity per frequency channel')
 
 %% firing rates (2) - same as (1)
 % figure;
