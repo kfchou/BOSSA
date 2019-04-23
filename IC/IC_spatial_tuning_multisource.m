@@ -37,12 +37,17 @@ numChannel = 64;
 [nf,cf,bw] = getFreqChanInfo('erb',numChannel,low_freq,high_freq);
 fcoefs=MakeERBFilters(fs,cf,low_freq);
 
+secondSourceLoc = 30;
+thirdSourceLoc = -30;
+[~,secondSourceIdx] = min(abs(sourcePositions-secondSourceLoc));
+[~,thirdSourceIdx] = min(abs(sourcePositions-thirdSourceLoc));
+
 gain = 1500;
 for i = 1:nPositions
     tic
     s_filt = struct();
-    s_filt.sL=ERBFilterBank((sentencesL(:,i)+sentences2L(:,19))./2*gain,fcoefs); %freq*time
-    s_filt.sR=ERBFilterBank((sentencesR(:,i)+sentences2R(:,19))./2*gain,fcoefs);
+    s_filt.sL=ERBFilterBank((sentencesL(:,i)+sentences2L(:,secondSourceIdx)+sentences2L(:,thirdSourceIdx))./3*gain,fcoefs); %freq*time
+    s_filt.sR=ERBFilterBank((sentencesR(:,i)+sentences2R(:,secondSourceIdx)+sentences2R(:,thirdSourceIdx))./3*gain,fcoefs);
     s_filt.band = 'narrow';
     s_filt.BW = bw;
     s_filt.flist = cf;
@@ -60,13 +65,13 @@ end
 disp('done')
 
 %% save files
-% % for i = 1:nPositions
-% %     saveLoc = 'Z:\eng_research_hrc_binauralhearinglab\kfchou\ActiveProjects\CISPA2.0\Data\008 IC spatial tuning\';
-% %     spk_IC = spks(i).spk_IC;
-% %     FR = spks(i).FR;
-% %     saveName = sprintf('Spatial Tuning Spikes Source Position %02i.m',i);
-% %     save([saveLoc saveName],'spk_IC','FR','sourcePositions','azList');
-% % end
+for i = 1:nPositions
+    saveLoc = 'C:\Users\Kenny\Desktop\GitHub\PISPA2.0\IC\spatial tuning data gitignore\';
+    spk_IC = spks(i).spk_IC;
+    FR = spks(i).FR;
+    saveName = sprintf('Spatial Tuning, Masker at +-30, Source Position %02i.m',i);
+    save([saveLoc saveName],'spk_IC','FR','sourcePositions','azList');
+end
 %% activity = number of total spikes
 for j = 1:length(azList)
     for i = 1:nPositions
@@ -77,26 +82,26 @@ figure;
 plot(sourcePositions,numSpk,'linewidth',2);
 ylabel('spike count (all freq channels)')
 xlabel('azimuth')
-title('total spike count v noise location')
+title(sprintf('total spike count v noise location, masker at +/-30'))
 legend(cellstr(num2str(azList')))
 
 %% firing rates (1)
-% figure;
-for j = [2,4,5,6,8]%1:length(azList)
+figure;
+for j = 1:length(azList)
     for i = 1:nPositions
         spkPerChan(i,:) = sum(spks(i).spk_IC(:,:,j));
     end
-    figure;
-%     subplot(3,3,j)
+%     figure;
+    subplot(3,3,j)
     imagesc(sourcePositions,cf,spkPerChan')
     ylabel('freq channel CFs')
     xlabel('noise source azimuth')
     set(gca,'ydir','normal')
     title(sprintf('%i deg az neurons',azList(j)))
-    colorbar;
+%     colorbar;
     caxis([0 1000])
 end
-% suptitle('total firing activity per frequency channel')
+suptitle(sprintf('total firing activity per frequency channel,  masker at +/-30'));
 
 %% firing rates (2) - same as (1)
 % figure;

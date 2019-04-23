@@ -108,30 +108,34 @@ st1 = runStoi(rstim1mono,targetLRmono,fs,fs);
 % % [rstim2dual, rstim2mono] = applyMask(spkMask,mixedEnvL,mixedEnvR,frgain,'env',cf);
 % % st2 = runStoi(rstim2mono,targetLRmono,fs,fs);
 
-[rstim4dual, rstim4mono] = applyMask(spkMask,mixedEnvL,mixedEnvR,frgain,'mixed',cf);
-st4 = runStoi(rstim4mono,targetLRmono,fs,fs);
-
-rstim4pp = runF0(rstim4dual,fs);
-st4pp = runStoi(rstim4pp,targetLRmono,fs,fs);
+% % [rstim4dual, rstim4mono] = applyMask(spkMask,mixedEnvL,mixedEnvR,frgain,'mixed',cf);
+% % st4 = runStoi(rstim4mono,targetLRmono,fs,fs);
+% % 
+% % rstim4pp = runF0(rstim4dual,fs);
+% % st4pp = runStoi(rstim4pp,targetLRmono,fs,fs);
 
 % Vocoded-SpikeMask
-% fcutoff = 2000;
-% rstim3t = vocode(spkMask,cf,'tone');
-% rstim3n = vocode(spkMask,cf,'noise',fs);
-% rstim3 = rstim3t;
-% rstim3(cf>fcutoff,:) = rstim3n(cf>fcutoff,:);
-% st3 = runStoi(rstim3,target,fs,fs);
+fcutoff = 2000;
+rstim3t = vocode(spkMask,cf,'tone');
+rstim3n = vocode(spkMask,cf,'noise',fs);
+rstim3 = rstim3t;
+rstim3(cf>fcutoff,:) = rstim3n(cf>fcutoff,:);
+st3 = runStoi(rstim3,target,fs,fs);
+
+% % rstim3pp = runF0(rstim3,fs);
+% % st3pp = runStoi(rstim3pp,target,fs,fs);
 
 % compile output waveforms
 rstim.r1d = rstim1dual;
-rstim.r1m = rstim1mono;
+% rstim.r1m = rstim1mono;
 % % rstim.r2d = rstim2dual;
 % % rstim.r2m = rstim2mono;
-% rstim.r3 = rstim3;
-rstim.r4d = rstim4dual;
-rstim.r4m = rstim4mono;
-rstim.mask = spkMask;
-rstim.r4pp = rstim4pp;
-out = [st1 st4 st4pp];
+rstim.r3 = rstim3;
+% rstim.r3pp = rstim3pp;
+% rstim.r4d = rstim4dual;
+% rstim.r4m = rstim4mono;
+% rstim.mask = spkMask;
+% rstim.r4pp = rstim4pp;
+out = [st1 st3];
 
 disp('eval complete')

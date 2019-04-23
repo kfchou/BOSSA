@@ -13,7 +13,12 @@ maskingParams.fcutoff = 1500;
 debugParam.plotting = 0;
 
 %% perform postprocessing
-tempL = f0_emphasis(rstim4(:,1),fs,maskingParams,debugParam);
-tempR = f0_emphasis(rstim4(:,2),fs,maskingParams,debugParam);
-n = min(length(tempL),length(tempR));
-recon = [tempL(1:n) tempR(1:n)];
+if size(rstim4,2) == 2 %dual channel
+    tempL = f0_emphasis(rstim4(:,1),fs,maskingParams,debugParam);
+    tempR = f0_emphasis(rstim4(:,2),fs,maskingParams,debugParam);
+    n = min(length(tempL),length(tempR));
+    recon = [tempL(1:n) tempR(1:n)];
+else
+    recon = f0_emphasis(rstim4,fs,maskingParams,debugParam);
+end
+    
