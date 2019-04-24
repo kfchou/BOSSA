@@ -37,8 +37,8 @@ numChannel = 64;
 [nf,cf,bw] = getFreqChanInfo('erb',numChannel,low_freq,high_freq);
 fcoefs=MakeERBFilters(fs,cf,low_freq);
 
-secondSourceLoc = 30;
-thirdSourceLoc = -30;
+secondSourceLoc = 90;
+thirdSourceLoc = -90;
 [~,secondSourceIdx] = min(abs(sourcePositions-secondSourceLoc));
 [~,thirdSourceIdx] = min(abs(sourcePositions-thirdSourceLoc));
 
@@ -46,8 +46,10 @@ gain = 1500;
 for i = 1:nPositions
     tic
     s_filt = struct();
-    s_filt.sL=ERBFilterBank((sentencesL(:,i)+sentences2L(:,secondSourceIdx)+sentences2L(:,thirdSourceIdx))./3*gain,fcoefs); %freq*time
-    s_filt.sR=ERBFilterBank((sentencesR(:,i)+sentences2R(:,secondSourceIdx)+sentences2R(:,thirdSourceIdx))./3*gain,fcoefs);
+%     s_filt.sL=ERBFilterBank((sentencesL(:,i)+sentences2L(:,secondSourceIdx)+sentences2L(:,thirdSourceIdx))./3*gain,fcoefs); %freq*time
+%     s_filt.sR=ERBFilterBank((sentencesR(:,i)+sentences2R(:,secondSourceIdx)+sentences2R(:,thirdSourceIdx))./3*gain,fcoefs);
+    s_filt.sL=ERBFilterBank((sentences2L(:,secondSourceIdx)+sentences2L(:,thirdSourceIdx))./2*gain,fcoefs); %freq*time
+    s_filt.sR=ERBFilterBank((sentences2R(:,secondSourceIdx)+sentences2R(:,thirdSourceIdx))./2*gain,fcoefs);
     s_filt.band = 'narrow';
     s_filt.BW = bw;
     s_filt.flist = cf;
