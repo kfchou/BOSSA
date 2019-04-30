@@ -22,8 +22,8 @@ for i = 1:nPositions
 end
 
 % apply impulse responses
-sentencesL = fftfilt(hrtfL,noise);
-sentencesR = fftfilt(hrtfR,noise);
+sentencesL = fftfilt(hrtfL,noise');
+sentencesR = fftfilt(hrtfR,noise');
 
 %% frequency filtering
 low_freq = 150; %min freq of the filter
