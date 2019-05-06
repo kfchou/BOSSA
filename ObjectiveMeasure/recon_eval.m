@@ -109,7 +109,7 @@ end
 
 rstim = struct();
 st = struct();
-if ismember(1,params.cond)
+if ismember(1,params.type)
     % mixture carrier reconstruction
     [rstim1dual, rstim1mono] = applyMask(spkMask,mixedFiltL,mixedFiltR,frgain,'filt');
     st1 = runStoi(rstim1mono,targetLRmono,fs,fs);
@@ -119,7 +119,7 @@ if ismember(1,params.cond)
     st.r1 = st1;
 end
 
-if ismember(2,params.cond)
+if ismember(2,params.type)
     %apply to envelope of filtered mixture
     [rstim2dual, rstim2mono] = applyMask(spkMask,mixedEnvL,mixedEnvR,frgain,'env',cf);
     st2 = runStoi(rstim2mono,targetLRmono,fs,fs);
@@ -129,7 +129,7 @@ if ismember(2,params.cond)
     st.r2 = st2;
 end
 
-if ismember(3,params.cond)
+if ismember(3,params.type)
      % Vocoded-SpikeMask
     fcutoff = 2000;
     rstim3t = vocode(spkMask,cf,'tone');
@@ -142,7 +142,7 @@ if ismember(3,params.cond)
     st.r3 = st3;
 end
 
-if ismember(4,params.cond)
+if ismember(4,params.type)
     % mixed vocoding of filtered mixture envelope
     [rstim4dual, rstim4mono] = applyMask(spkMask,mixedEnvL,mixedEnvR,frgain,'mixed',cf);
     st4 = runStoi(rstim4mono,targetLRmono,fs,fs);
