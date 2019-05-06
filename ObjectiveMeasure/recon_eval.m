@@ -1,8 +1,8 @@
-function [st,rstim] = recon_eval(data,target_wav,target_spatialized,mix_wav,params)
+function [st,rstim] = recon_eval(spks,target_wav,target_spatialized,mix_wav,params)
 % performs stimulus reconstruction and objective intelligibility assessment on a set of spike trains
-% out = recon_eval(data,target_wav,target_spatialized,mix_wav,params)
+% out = recon_eval(spks,target_wav,target_spatialized,mix_wav,params)
 % Inputs:
-%	data: a set of spike trains (from the IC for example)
+%	spks: a set of spike trains (from the IC for example)
 %	target_wav_loc: full path to target.wav (str), or its waveform vector
 %	target_spatialized_loc: full path to target_conv.wav, or its waveform
 %	mix_wav_loc: full path to mixed.wav, or its waveform vector
@@ -20,7 +20,7 @@ function [st,rstim] = recon_eval(data,target_wav,target_spatialized,mix_wav,para
 %       .numChannel
 %       ----- other options -----
 %       .maskRatio
-%       .cond: an array containing the reconstruction conditions
+%       .type: an array containing the reconstruction conditions
 %              see outputs -> rstim for a list of conditions
 % Outputs:
 %	out: STOI scores of three reconstruction methods
@@ -83,7 +83,7 @@ for i = 1:nf
 end
 
 %% reconstruction
-masks = calcSpkMask(data,fs,'alpha',params.tau);
+masks = calcSpkMask(spks,fs,'alpha',params.tau);
 masksNorm = zeros(size(masks));
 if ndims(masks) == 3
     % normalize masks
