@@ -131,14 +131,16 @@ end
 
 if ismember(3,params.type)
      % Vocoded-SpikeMask
-    fcutoff = 2000;
-    rstim3t = vocode(spkMask,cf,'tone');
-    rstim3n = vocode(spkMask,cf,'noise',fs);
+    fcutoff = 8000;
+    [rstimTone,rstim3t] = vocode(spkMask,cf,'tone');
+    [~,rstim3n] = vocode(spkMask,cf,'noise',fs);
     rstim3 = rstim3t;
     rstim3(cf>fcutoff,:) = rstim3n(cf>fcutoff,:);
+    rstim3 = sum(rstim3);
     st3 = runStoi(rstim3,target,fs,fs);
     
-    rstim.r3 = rstim3;
+    rstim.r3m = rstim3;
+    rstim.r3t = rstimTone;
     st.r3 = st3;
 end
 
