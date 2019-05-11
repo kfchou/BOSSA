@@ -49,6 +49,8 @@ Sx=200*Sx-60;
 % min_sx = min(min(Sx));
 % Sx = (Sx-min_sx)/(max_sx-min_sx)*60-30;
 
-%Combine ITD and ILD inputs and filter
-%De-emphasize the ILD for low frequencies (>350Hz)
+%Combine ITD (Sx) and ILD (Sz) inputs and filter
 S=lowpass_firstorder(Sx+Sz,4,Ts);
+% S = lowpass_firstorder(Sx,4,Ts); %ITD only
+% S = lowpass_firstorder(Sz,4,Ts); %ILD only
+
