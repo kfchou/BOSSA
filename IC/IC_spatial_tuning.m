@@ -4,7 +4,7 @@ cd('C:\Users\Kenny\Desktop\GitHub\PISPA2.0')
 addpath('Peripheral')
 addpath('IC')
 % generate wgn
-fs = 40000;
+fs = 44100;
 noise = wgn(1,50000,1);
 
 % spatialize wgn
