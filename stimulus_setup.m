@@ -73,7 +73,7 @@ end
 % apply HRTFs
 % 1st loc always in front
 hrtf_name = ['kemar_small_horiz_' num2str(az(1)) '_0.mat'];
-load(['HRTF\' hrtf_name])
+load(['HRTF_40k\' hrtf_name])
 mixed.sL = conv(s(1).wav,hrir_left,'same')*input_gain;
 mixed.sR = conv(s(1).wav,hrir_right,'same')*input_gain;
 n1=length(s(1).wav);
@@ -86,7 +86,7 @@ for ii = 2:length(az)
     n2=length(s(ii).wav);
     nn=min([n1 n2]-60);
     hrtf_name = ['kemar_small_horiz_' num2str(az(ii)) '_0.mat'];
-    load(['HRTF\' hrtf_name])
+    load(['HRTF_40k\' hrtf_name])
     signal2_left = conv(s(ii).wav,hrir_left,'same')*input_gain;
     signal2_right = conv(s(ii).wav,hrir_right,'same')*input_gain;
     mixed.sL = mixed.sL(1:nn) + signal2_left(1:nn);
