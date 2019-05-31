@@ -44,22 +44,16 @@ switch method
         rstimL = sum(maskedWavL);
         rstimR = sum(maskedWavR);
         rstimDual = [rstimL' rstimR'];
-        rstimMono = rstimL + rstimR;
-        rstimMono = rstimMono/max(abs(rstimMono));
     case 'env' %vocoded spike-mask filtered stimulus
         %apply to envelope of filtered mixture
         rstimL = vocode(maskedWavL,cf,'tone');
         rstimR = vocode(maskedWavR,cf,'tone');
         rstimDual = [rstimL rstimR];
-        rstimMono = rstimL + rstimR;
-        rstimMono = rstimMono/max(abs(rstimMono));
     case 'noise' %applies mixed/hybrid vocoding to the mask-modulated envelopes
         fs = 40000;
         rstimL = vocode(maskedWavL,cf,'noise',fs);
         rstimR = vocode(maskedWavR,cf,'noise',fs);
         rstimDual = [rstimL rstimR];
-        rstimMono = rstimL + rstimR;
-        rstimMono = rstimMono/max(abs(rstimMono));
     case 'mixed'
         fs = 40000;
         fcutoff = 2000;
@@ -69,13 +63,13 @@ switch method
         [~,rstimNoiseR] = vocode(maskedWavR,cf,'noise',fs);
         rstimL = rstimToneL;
         rstimL(cf>fcutoff,:) = rstimNoiseL(cf>fcutoff,:);
+        rstimL = sum(rstimL);
         rstimR = rstimToneR;
         rstimR(cf>fcutoff,:) = rstimNoiseR(cf>fcutoff,:);
-        rstimDual = [sum(rstimL); sum(rstimR)]';
-        rstimMono = sum(rstimL) + sum(rstimR);
-        rstimMono = rstimMono/max(abs(rstimMono));
+        rstimR = sum(rstimR);
+        rstimDual = [rstimL; rstimR]';
     otherwise
         disp('method not supported')
 end
-            
-
+rstimMono = rstimL + rstimR;
+rstimMono = rstimMono/max(abs(rstimMono));
