@@ -1,5 +1,6 @@
 function [st,rstim] = recon_eval(spks,target_wav,target_spatialized,mix_wav,params)
 % performs stimulus reconstruction and objective intelligibility assessment on a set of spike trains
+% calculates TF masks. The TF masks are normalized, then directly applied to mix_wav.
 % out = recon_eval(spks,target_wav,target_spatialized,mix_wav,params)
 % Inputs:
 %	spks: a set of spike trains (from the IC for example)
@@ -71,18 +72,18 @@ else
     frgain = 1;
 end
 
-targetFiltmono = ERBFilterBank(target,fcoefs);
+targetFiltL = ERBFilterBank(targetLR(:,1),fcoefs);
+targetFiltR = ERBFilterBank(targetLR(:,2),fcoefs);
 mixedFiltL = ERBFilterBank(mixed(:,1),fcoefs);
 mixedFiltR = ERBFilterBank(mixed(:,2),fcoefs);
 
-clear mixedEnvL mixedEnvR targetEnv targetConvEnv
-for i = 1:nf
-    mixedEnvL(i,:)= envelope(mixedFiltL(i,:)); %envlope of mixture
-    mixedEnvR(i,:)= envelope(mixedFiltR(i,:)); %envlope of mixture
-    targetEnv(i,:) = envelope(targetFiltmono(i,:)); %envelope of target
-end
+%calcualte gain of ERB filter
+target_ERBrecon(:,1) = sum(targetFiltL);
+target_ERBrecon(:,2) = sum(targetFiltR);
+rmsERBscale = rms(targetLR)./rms(target_ERBrecon);
 
-%% reconstruction
+
+%% mask calculation
 masks = calcSpkMask(spks,fs,'alpha',params.tau);
 masksNorm = zeros(size(masks));
 if ndims(masks) == 3
@@ -106,31 +107,45 @@ if ndims(masks) == 3
 else
     spkMask = masks;
 end
+spkMask = spkMask./max(max(abs(spkMask))); %normalize to [0,1]
 
+%% Reconstruction
 rstim = struct();
 st = struct();
+% ---------------- mask-filtered reconstruction --------------
 if ismember(1,params.type)
-    % mixture carrier reconstruction
-    [rstim1dual, rstim1mono] = applyMask(spkMask,mixedFiltL,mixedFiltR,frgain,'filt');
-    st1 = runStoi(rstim1mono,targetLRmono,fs,fs);
+    [rstim1dual, ~] = applyMask(spkMask,mixedFiltL,mixedFiltR,frgain,'filt');
+    st1 = runStoi(rstim1dual,targetLR,fs,fs);
     
-    rstim.r1d = rstim1dual;
-    rstim.r1m = rstim1mono;
+    rstim.r1d = rstim1dual.*rmsERBscale;
     st.r1 = st1;
 end
 
+% -------------- vocoded mask-filtered reconstruction ----------------
 if ismember(2,params.type)
-    %apply to envelope of filtered mixture
-    [rstim2dual, rstim2mono] = applyMask(spkMask,mixedEnvL,mixedEnvR,frgain,'env',cf);
-    st2 = runStoi(rstim2mono,targetLRmono,fs,fs);
+    %extract envelopes
+    mixedEnvL = zeros(nf,length(mixedFiltL));
+    mixedEnvR = zeros(nf,length(mixedFiltR));
+    for i = 1:nf
+        mixedEnvL(i,:)= envelope(mixedFiltL(i,:)); %envlope of mixture
+        mixedEnvR(i,:)= envelope(mixedFiltR(i,:)); %envlope of mixture
+    end
     
-    rstim.r2d = rstim2dual;
-    rstim.r2m = rstim2mono;
+    % perform reconstruction
+    [rstim2dual, ~] = applyMask(spkMask,mixedEnvL,mixedEnvR,frgain,'env',cf);
+    st2 = runStoi(rstim2dual,targetLR,fs,fs);
+    
+    rstim.r2d = rstim2dual.*rmsERBscale;
     st.r2 = st2;
 end
 
+% -------------- vocoded spike-mask reconstruction ----------------
 if ismember(3,params.type)
-     % Vocoded-SpikeMask
+    % calculate gain difference against MaskFilt
+    [rstim1dual, ~] = applyMask(spkMask,mixedFiltL,mixedFiltR,frgain,'filt');
+    rstim1rms = rms(rstim1dual);
+    
+    % perform reconstruction
     fcutoff = 8000;
     [rstimTone,rstim3t] = vocode(spkMask,cf,'tone');
     [~,rstim3n] = vocode(spkMask,cf,'noise',fs);
@@ -138,13 +153,24 @@ if ismember(3,params.type)
     rstim3(cf>fcutoff,:) = rstim3n(cf>fcutoff,:);
     rstim3 = sum(rstim3);
     st3 = runStoi(rstim3,target,fs,fs);
+
+    rmsVocScale = rms(target)./rms(rstim3);
     
-    rstim.r3m = rstim3;
+    rstim.r3m = rstim3*rmsVocScale*rmsERBscale;
     rstim.r3t = rstimTone;
     st.r3 = st3;
 end
 
+% ------------- mixed vocoding of filtered mixture envelope ----------
 if ismember(4,params.type)
+    %extract envelopes
+    mixedEnvL = zeros(nf,length(mixedFiltL));
+    mixedEnvR = zeros(nf,length(mixedFiltR));
+    for i = 1:nf
+        mixedEnvL(i,:)= envelope(mixedFiltL(i,:)); %envlope of mixture
+        mixedEnvR(i,:)= envelope(mixedFiltR(i,:)); %envlope of mixture
+    end
+    
     % mixed vocoding of filtered mixture envelope
     [rstim4dual, rstim4mono] = applyMask(spkMask,mixedEnvL,mixedEnvR,frgain,'mixed',cf);
     st4 = runStoi(rstim4mono,targetLRmono,fs,fs);
