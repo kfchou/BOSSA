@@ -4,7 +4,6 @@ cd('C:\Users\Kenny\Desktop\GitHub\PISPA2.0')
 addpath('Peripheral')
 addpath('IC')
 % generate wgn
-fs = 44100;
 noise = wgn(1,50000,1);
 
 % spatialize wgn
@@ -14,6 +13,7 @@ nPositions = length(sourcePositions);
 % load impulse responses
 % hrtfLoc = 'Z:\eng_research_hrc_binauralhearinglab\kfchou\ActiveProjects\CISPA2.0\HRTF\';
 hrtfLoc = 'HRTF\';
+fs = 44100;
 for i = 1:nPositions
     hrtf_name = ['kemar_small_horiz_' num2str(sourcePositions(i)) '_0.mat'];
     load([hrtfLoc hrtf_name])
@@ -26,8 +26,8 @@ sentencesL = fftfilt(hrtfL,noise');
 sentencesR = fftfilt(hrtfR,noise');
 
 %% frequency filtering
-low_freq = 150; %min freq of the filter
-high_freq = 8000;
+low_freq = 200; %min freq of the filter
+high_freq = 20000;
 numChannel = 64;
  
 %apply peripheral filters
@@ -53,7 +53,10 @@ for i = 1:nPositions
     azList = [-90,-60,-45,-30,0,30,45,60,90]; %model neuron locations
     [spks(i).spk_IC, spks(i).FR] = ICmodel(s_filt,azList,randomness);
     
-    saveLoc = 'J:\Data\spatial tuning single wgn';
+    saveLoc = 'J:\Data\spatial tuning upto 20khz KEMAR ITDs';
+    if ~exist(saveLoc,'dir')
+        mkdir(saveLoc);
+    end
     spk_IC = spks(i).spk_IC;
     FR = spks(i).FR;
     saveName = sprintf('Spatial Tuning SingleWGN Position %02i.mat',i);
@@ -82,7 +85,7 @@ figure;
 plot(sourcePositions,numSpk,'linewidth',2);
 ylabel('spike count (all freq channels)')
 xlabel('azimuth')
-title('total spike count v noise location')
+title('total spike count v noise location upto 20khz KEMAR ITDs')
 hleg = legend(cellstr(num2str(azList')));
 hleg.Title.String = ['Neuron' newline 'Preferred' newline 'Location'];
 hleg.EdgeColor = [1 1 1];
