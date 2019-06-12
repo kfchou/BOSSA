@@ -154,9 +154,9 @@ if ismember(3,params.type)
     rstim3 = sum(rstim3);
     st3 = runStoi(rstim3,target,fs,fs);
 
-    rmsVocScale = rms(target)./rms(rstim3);
+    rmsVocScale = mean(rstim1rms)./rms(rstim3);
     
-    rstim.r3m = rstim3*rmsVocScale*rmsERBscale;
+    rstim.r3m = rstim3*rmsVocScale*mean(rmsERBscale);
     rstim.r3t = rstimTone;
     st.r3 = st3;
 end
