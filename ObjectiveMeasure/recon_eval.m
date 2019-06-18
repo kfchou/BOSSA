@@ -157,7 +157,7 @@ if ismember(3,params.type)
     rmsVocScale = rms(target)./rms(rstim3);
     
     rstim.r3m = rstim3*rmsVocScale*rmsERBscale;
-    rstim.r3t = rstimTone;
+    rstim.r3t = rstimTone*rmsVocScale*rmsERBscale;
     st.r3 = st3;
 end
 
