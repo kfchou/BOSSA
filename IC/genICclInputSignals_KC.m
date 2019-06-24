@@ -11,7 +11,7 @@ function [S,Sx,Sz,sigild]=genICclInputSignals_KC(yL,yR,z,Xun,Ts,p,side,signal)
 %Side of the brain (-1 for left, 1 for right, 0 for both-(half and half))
 
 NF = size(z,1); % number of frequency channels
-Sx = Xun; %ITD input
+Sx = Xun; %Cross correlation/ITD input
 Sz = zeros(size(z));
 sigild = zeros(size(z));
 

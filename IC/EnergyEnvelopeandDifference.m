@@ -1,9 +1,12 @@
-function [yL,yR,z]=EnergyEnvelopeandDifference(vL,vR,Ts,sig)
+function [yL,yR,z]=EnergyEnvelopeandDifference(vL,vR,Ts,noiseLev)
 
 %[yL,yR,z]=EnergyEnvelopeandDifference(vL,vR,Ts,sig)
-%vL,vR are outputs of the filterbank
-%Ts is the time step in msec
-%Sig is noise level
+% LPF and take log transform of L and R signals vL and vR
+% Computes energy envelope difference of the result.
+%
+% vL,vR are outputs of the filterbank
+% Ts is the time step in msec, 1000/fs
+% noiseLev is noise level
 
 %Fixed parameters
 %time constant of the low pass filter in msec
@@ -44,8 +47,8 @@ yR(yR>1)=log10(yR(yR>1))/10;
 
 %%%%%%%%%%%%%Noise%%%%%%%%%%%%%%%%%%%%%%%%
 
-yL=yL.*(1+randn(size(yL))*sig);
-yR=yR.*(1+randn(size(yR))*sig);
+yL=yL.*(1+randn(size(yL))*noiseLev);
+yR=yR.*(1+randn(size(yR))*noiseLev);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

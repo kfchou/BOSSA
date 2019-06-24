@@ -1,6 +1,6 @@
 function [f,out]=plot_filterBankSupport(fcoefs,ncf,options)
 % [f,out] = plot_filterBankSupport(fcoefs,ncf,options)
-% ncf = center frequency index (integer)
+% ncf = center frequency index (integer), optional
 % if passed in, code will highlight a filter at that center frequency
 if nargin < 1
     error('not enough input arguments, missing fceofs')
