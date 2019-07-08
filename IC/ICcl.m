@@ -1,4 +1,4 @@
-function [spike_train,fr,signal]=ICcl(signal,nf,DT,np,side,randomness)
+function [spike_times,fr,signal]=ICcl(signal,nf,DT,np,side,randomness)
 % A complete MSO/NL neuron, cross-correlator of binaural inputs
 % Inputs
 %   [signal]: input binaural waveform, frequency filtered
@@ -12,6 +12,10 @@ function [spike_train,fr,signal]=ICcl(signal,nf,DT,np,side,randomness)
 %   [np]: neuron parameters, calculated with SetLocalizationParameters()
 %   [side]: calculated with SetLocalizationParameters()
 %   [randomness]: noise in the spike generator: 1 or 0.
+%
+% 2019-07-08-KFC: discarded spike-train variables. Changed output to
+%                 spike-time cell array. Output should be 100x less memory
+%                 intensive than matrix spike-train representation.
 
 Ts=1000/signal.fs; % time step in ms
 
@@ -36,10 +40,8 @@ fr = genSigmoidActivities(np(1,:),S);  % firing rate
 % Poisson spiking model
 spike_times = cell(nf,1);
 time = 0:1/signal.fs:(length(signal.sL)-1)/signal.fs;
-n_time = length(time);
-spike_train = zeros(n_time,nf);
 for i=1:nf 
-    [spike_train(:,i),spike_times{i,1}] = spike_generator_kc(fr(i,:),time,randomness);
+    [~,spike_times{i,1}] = spike_generator_kc(fr(i,:),time,randomness);
 end
 
 % ------------------------ plots for debugging ------------------------
