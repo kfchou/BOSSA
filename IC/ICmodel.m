@@ -1,4 +1,4 @@
-function [spk, firingrate] = ICmodel(s_filt,azList,optional)
+function [spkTimes, firingrate] = ICmodel(s_filt,azList,optional)
 % [spk, firingrate] = ICmodel(s_filt,azList,randomness)
 % main function for calling Fischer's IC model
 % Inpus:
@@ -15,6 +15,9 @@ function [spk, firingrate] = ICmodel(s_filt,azList,optional)
 %   ICmodel(s_filt,[-90,0,90]) runs the IC model with three model
 %   neurons, with best ITD and ILDs correponding to -90, 0, and 90 deg az.
 %   No random firing in the model.
+%
+% 2019-08-07-KFC: Changed output to spike-time cell array from spike-train
+%                 matrix.
 
 % path = [cd filesep]; %assuming current directory is set to the root directory of the project
 if strcmp(getenv('computername'),'KENNY-PC')
@@ -33,7 +36,8 @@ end
 nSpatialChan = length(azList);
 nf = s_filt.nf;
 n_signal = length(s_filt.sL);
-spk = zeros(n_signal, nf, nSpatialChan); %time x freq x neurons
+% spk = zeros(n_signal, nf, nSpatialChan); %time x freq x neurons
+spkTimes = cell(nf,nSpatialChan);
 firingrate = zeros(nf, n_signal, nSpatialChan);
 
 %load neuron parameters from Fischer's file (?)
@@ -58,5 +62,5 @@ for i = 1:length(azList) %for each az location
     [np, side] = SetLocalizationParameters(ITD_az, ILD_az, nf, NeuronParms);
     
     % run model
-    [spk(:, :, i), firingrate(:, :, i), ~] = ICcl(s_filt,nf,ITD_az,np,side,randomness);
+    [spkTimes(:,i), firingrate(:, :, i), ~] = ICcl(s_filt,nf,ITD_az,np,side,randomness);
 end
