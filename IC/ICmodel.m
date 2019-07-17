@@ -45,6 +45,7 @@ a = 9.3395; % radius of KEMAR's head, cm
 c = 34300; % speed of sound, cm/s
 ITDs = -a/c*(azList*pi/180+sin(azList*pi/180)); %woodworth formula; negative sign is necessary
 ITDs = ITDs*1000; %convert to ms
+% ITDs = gen_ITD(s_filt.lowFreq,s_filt.highFreq,s_filt.nf,s_filt.fs,azList)*1000;
 ILDs = gen_ILD(s_filt.lowFreq,s_filt.highFreq,s_filt.nf,s_filt.fs,azList,saveLoc);
 
 % -------------------------- Run Model ----------------------------

@@ -38,8 +38,9 @@ spike_times = cell(nf,1);
 time = 0:1/signal.fs:(length(signal.sL)-1)/signal.fs;
 n_time = length(time);
 spike_train = zeros(n_time,nf);
-for i=1:nf 
-    [spike_train(:,i),spike_times{i,1}] = spike_generator_kc(fr(i,:),time,randomness);
+for i=1:nf
+%     [spike_train(:,i),spike_times{i,1}] = spike_generator_kc(fr(i,:),time,randomness);
+    [spike_train(:,i),~] = spike_generator_kc(fr(i,:),time,randomness);
 end
 
 % ------------------------ plots for debugging ------------------------
