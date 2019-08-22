@@ -7,7 +7,7 @@ if ~exist('directions','var')
 end
 
 for i = 1:length(directions)
-    load(sprintf('HRTF\\kemar_small_horiz_%i_0.mat',directions(i)));
+    load(sprintf('HRTF//kemar_small_horiz_%i_0.mat',directions(i)));
     [nf,cf,bw] = getFreqChanInfo('erb',numChan,low,high);
     fcoefs=MakeERBFilters(fs,cf,low);
 
@@ -31,6 +31,7 @@ for i = 1:length(directions)
     ild(:,i) = amp_z;
 end
 
+params.cf = cf;
 params.directions = directions;
 params.fs = fs;
 
