@@ -1,4 +1,4 @@
-function [st,rstim,spkMask] = recon_eval(spks,target_wav,target_spatialized,mix_wav,params)
+function [st,rstim] = recon_eval(spks,target_wav,target_spatialized,mix_wav,params)
 % performs stimulus reconstruction and objective intelligibility assessment on a set of spike trains
 % calculates TF masks. The TF masks are normalized, then directly applied to mix_wav.
 % out = recon_eval(spks,target_wav,target_spatialized,mix_wav,params)
@@ -21,7 +21,6 @@ function [st,rstim,spkMask] = recon_eval(spks,target_wav,target_spatialized,mix_
 %       .numChannel
 %       ----- other options -----
 %       .maskRatio
-%       .diffMaskThr
 %       .type: an array containing the reconstruction conditions
 %              see outputs -> rstim for a list of conditions
 % Outputs:
@@ -42,10 +41,7 @@ function [st,rstim,spkMask] = recon_eval(spks,target_wav,target_spatialized,mix_
 % @Kenny Chou
 % 2019-04-30
 % Boston University
-
-%% default parameters
-if ~isfield(params,'diffMaskThr'), params.diffMaskThr = 0; end
-
+% 20190726 KFC added delay parameter to calcSpkMask
 %% set up reference
 if isa(target_wav,'char')
     target = audioread(target_wav);
@@ -89,7 +85,11 @@ rmsERBscale = rms(targetLR)./rms(target_ERBrecon);
 
 
 %% mask calculation
-masks = calcSpkMask(spks,fs,'alpha',params.tau);
+maskParam.kernel = 'alpha';
+maskParam.tau = params.tau;
+maskParam.delay = params.delay;
+masks = calcSpkMask(spks,fs,maskParam);
+% masks = calcSpkMask(spks,fs,'gauss',params.tau);
 masksNorm = zeros(size(masks));
 if ndims(masks) == 3
     % normalize masks
@@ -104,19 +104,15 @@ if ndims(masks) == 3
     leftM1 = masksNorm(:,:,1);
     leftM2 = masksNorm(:,:,2);
     if params.spatialChan == 3
-%         spkMask = centerM-params.maskRatio.*(rightM1+leftM1+leftM2+rightM2);
-        spkMask = centerM-params.maskRatio.*(rightM2+leftM2);
-        thr = params.diffMaskThr;
-        spkMask(spkMask<thr)=thr;
+        spkMask = centerM-params.maskRatio.*(rightM1+leftM1+leftM2+rightM2);
+        spkMask(spkMask<0)=0;
     else
         error('only the mask for the center spatial channel is implemented');
     end
 else
     spkMask = masks;
 end
-spkMask = (spkMask - thr)*(1-thr)/(max(max(spkMask))-thr)+thr; %normalize to [thr,1]
-% spkMask = spkMask./max(max(abs(spkMask))); %normalize to [0,1]
-
+spkMask = spkMask./max(max(abs(spkMask))); %normalize to [0,1]
 
 %% Reconstruction
 rstim = struct();
