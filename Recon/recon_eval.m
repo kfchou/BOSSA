@@ -107,7 +107,7 @@ if ndims(masks) == 3
         spkMask = centerM-params.maskRatio.*(rightM1+leftM1+leftM2+rightM2);
         spkMask(spkMask<0)=0;
     else
-        error('only the mask for the center spatial channel is implemented');
+        spkMask = masksNorm(:,:,params.spatialChan);
     end
 else
     spkMask = masks;
