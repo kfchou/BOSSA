@@ -56,6 +56,9 @@ else
     targetLR = target_spatialized;
     mixed = mix_wav;
 end
+minLen = min(length(spks),length(mixed));
+mixed = mixed(1:minLen,:);
+
 target = target/max(abs(target));
 targetLRmono = targetLR(:,1) + targetLR(:,2);
 targetLRmono = targetLRmono/abs(max(targetLRmono));
@@ -113,6 +116,7 @@ if ndims(masks) == 3
     end
 else
     spkMask = masks;
+    thr = 0;
 end
 spkMask = (spkMask - thr)*(1-thr)/(max(max(spkMask))-thr)+thr; %normalize to [thr,1]
 % spkMask = spkMask./max(max(abs(spkMask))); %normalize to [0,1]
