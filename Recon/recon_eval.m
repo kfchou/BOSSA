@@ -1,12 +1,14 @@
-function [st,rstim,spkMask] = recon_eval(spks,target_wav,target_spatialized,mix_wav,params)
+function [st,rstim] = recon_eval(spks,target_wav,mix_wav,params)
 % performs stimulus reconstruction and objective intelligibility assessment on a set of spike trains
 % calculates TF masks. The TF masks are normalized, then directly applied to mix_wav.
 % out = recon_eval(spks,target_wav,target_spatialized,mix_wav,params)
 % Inputs:
 %	spks: a set of spike trains (from the IC for example)
 %	target_wav_loc: full path to target.wav (str), or its waveform vector
-%	target_spatialized_loc: full path to target_conv.wav, or its waveform
-%	mix_wav_loc: full path to mixed.wav, or its waveform vector
+%       can be single or dual channel. The waveform to be referenced
+%       against.
+%	mix_wav_loc: full path to mixed.wav, or its waveform vector. The mixed
+%       waveform on which spkMask is applied.
 %   params: structure with fields
 %       .fs - mandatory
 %       .tau - mask computation kernel time constant
@@ -21,7 +23,6 @@ function [st,rstim,spkMask] = recon_eval(spks,target_wav,target_spatialized,mix_
 %       .numChannel
 %       ----- other options -----
 %       .maskRatio
-%       .diffMaskThr
 %       .type: an array containing the reconstruction conditions
 %              see outputs -> rstim for a list of conditions
 % Outputs:
@@ -42,26 +43,16 @@ function [st,rstim,spkMask] = recon_eval(spks,target_wav,target_spatialized,mix_
 % @Kenny Chou
 % 2019-04-30
 % Boston University
-
-%% default parameters
-if ~isfield(params,'diffMaskThr'), params.diffMaskThr = 0; end
-
+% 20190726 KFC added delay parameter to calcSpkMask
+% 20190916 removed rms scaling, removed extra target parameter
 %% set up reference
 if isa(target_wav,'char')
     target = audioread(target_wav);
-    targetLR = audioread(target_spatialized);
     mixed = audioread(mix_wav);
 else
     target = target_wav;
-    targetLR = target_spatialized;
     mixed = mix_wav;
 end
-minLen = min(length(spks),length(mixed));
-mixed = mixed(1:minLen,:);
-
-target = target/max(abs(target));
-targetLRmono = targetLR(:,1) + targetLR(:,2);
-targetLRmono = targetLRmono/abs(max(targetLRmono));
 
 %frequency-filtered target & mixtures
 if ~isfield(params,'fcoefs')
@@ -80,26 +71,21 @@ else
     frgain = 1;
 end
 
-targetFiltL = ERBFilterBank(targetLR(:,1),fcoefs);
-targetFiltR = ERBFilterBank(targetLR(:,2),fcoefs);
 mixedFiltL = ERBFilterBank(mixed(:,1),fcoefs);
 mixedFiltR = ERBFilterBank(mixed(:,2),fcoefs);
 
-%calcualte gain of ERB filter
-target_ERBrecon(:,1) = sum(targetFiltL);
-target_ERBrecon(:,2) = sum(targetFiltR);
-rmsERBscale = rms(targetLR)./rms(target_ERBrecon);
-
-
 %% mask calculation
-masks = calcSpkMask(spks,fs,'alpha',params.tau);
+maskParam.kernel = 'alpha';
+maskParam.tau = params.tau;
+maskParam.delay = params.delay;
+masks = calcSpkMask(spks,fs,maskParam);
 masksNorm = zeros(size(masks));
 if ndims(masks) == 3
     % normalize masks
     for i = 1:size(masks,3)
         masksNorm(:,:,i) = masks(:,:,i)/max(max(masks(:,:,i)));
     end
-    
+
     % remove side channels
     centerM = masksNorm(:,:,3);
     rightM1 = masksNorm(:,:,5);
@@ -107,30 +93,27 @@ if ndims(masks) == 3
     leftM1 = masksNorm(:,:,1);
     leftM2 = masksNorm(:,:,2);
     if params.spatialChan == 3
-%         spkMask = centerM-params.maskRatio.*(rightM1+leftM1+leftM2+rightM2);
-        spkMask = centerM-params.maskRatio.*(rightM2+leftM2);
-        thr = params.diffMaskThr;
-        spkMask(spkMask<thr)=thr;
+        spkMask = centerM-params.maskRatio.*(rightM1+leftM1+leftM2+rightM2);
+        spkMask(spkMask<0)=0;
     else
-        error('only the mask for the center spatial channel is implemented');
+        error('only the difference mask for the center spatial channel is implemented');
     end
 else
     spkMask = masks;
     thr = 0;
 end
-spkMask = (spkMask - thr)*(1-thr)/(max(max(spkMask))-thr)+thr; %normalize to [thr,1]
-% spkMask = spkMask./max(max(abs(spkMask))); %normalize to [0,1]
-
+spkMask = spkMask./max(max(abs(spkMask))); %normalize to [0,1]
 
 %% Reconstruction
 rstim = struct();
 st = struct();
 % ---------------- mask-filtered reconstruction --------------
 if ismember(1,params.type)
-    [rstim1dual, ~] = applyMask(spkMask,mixedFiltL,mixedFiltR,frgain,'filt');
-    st1 = runStoi(rstim1dual,targetLR,fs,fs);
-    
-    rstim.r1d = rstim1dual.*rmsERBscale;
+    [rstim1dual, maskedWav] = applyMask(spkMask,mixedFiltL,mixedFiltR,frgain,'filt');
+    st1 = runStoi(rstim1dual,target,fs,fs);
+
+    rstim.r1d = rstim1dual;
+    rstim.tf = maskedWav;
     st.r1 = st1;
 end
 
@@ -143,21 +126,17 @@ if ismember(2,params.type)
         mixedEnvL(i,:)= envelope(mixedFiltL(i,:)); %envlope of mixture
         mixedEnvR(i,:)= envelope(mixedFiltR(i,:)); %envlope of mixture
     end
-    
+
     % perform reconstruction
     [rstim2dual, ~] = applyMask(spkMask,mixedEnvL,mixedEnvR,frgain,'env',cf);
-    st2 = runStoi(rstim2dual,targetLR,fs,fs);
-    
-    rstim.r2d = rstim2dual.*rmsERBscale;
+    st2 = runStoi(rstim2dual,target,fs,fs);
+
+    rstim.r2d = rstim2dual;
     st.r2 = st2;
 end
 
 % -------------- vocoded spike-mask reconstruction ----------------
 if ismember(3,params.type)
-    % calculate gain difference against MaskFilt
-    [rstim1dual, ~] = applyMask(spkMask,mixedFiltL,mixedFiltR,frgain,'filt');
-    rstim1rms = rms(rstim1dual);
-    
     % perform reconstruction
     fcutoff = 8000;
     [rstimTone,rstim3t] = vocode(spkMask,cf,'tone');
@@ -167,9 +146,7 @@ if ismember(3,params.type)
     rstim3 = sum(rstim3);
     st3 = runStoi(rstim3,target,fs,fs);
 
-    rmsVocScale = mean(rstim1rms)./rms(rstim3);
-    
-    rstim.r3m = rstim3*rmsVocScale*mean(rmsERBscale);
+    rstim.r3m = rstim3;
     rstim.r3t = rstimTone;
     st.r3 = st3;
 end
@@ -183,14 +160,14 @@ if ismember(4,params.type)
         mixedEnvL(i,:)= envelope(mixedFiltL(i,:)); %envlope of mixture
         mixedEnvR(i,:)= envelope(mixedFiltR(i,:)); %envlope of mixture
     end
-    
+
     % mixed vocoding of filtered mixture envelope
     [rstim4dual, rstim4mono] = applyMask(spkMask,mixedEnvL,mixedEnvR,frgain,'mixed',cf);
-    st4 = runStoi(rstim4mono,targetLRmono,fs,fs);
+    st4 = runStoi(rstim4mono,target,fs,fs);
 
     rstim4pp = runF0(rstim4dual,fs);
-    st4pp = runStoi(rstim4pp,targetLRmono,fs,fs);
-    
+    st4pp = runStoi(rstim4pp,target,fs,fs);
+
     rstim.r4d = rstim4dual;
     rstim.r4m = rstim4mono;
     rstim.r4pp = rstim4pp;

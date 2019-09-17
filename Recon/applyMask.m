@@ -1,4 +1,4 @@
-function [rstimDual,rstimMono] = applyMask(mask,wavL,wavR,frgain,method,cf,varargin)
+function [rstimDual,maskedWav] = applyMask(mask,wavL,wavR,frgain,method,cf,varargin)
 % I wrote this function to reduce some lines of code. Assuming fs = 40000;
 %
 % inputs:
@@ -20,7 +20,8 @@ function [rstimDual,rstimMono] = applyMask(mask,wavL,wavR,frgain,method,cf,varar
 % 4/17/2018
 % NSNC Lab, BU Hearing Research Center
 %
-% 10/16/2018 - removed interleaving support
+% 2018-10-16 - removed interleaving support
+% 2019-09-16 - replaced rstimMono output with pre-summed freq-filtered output
 
 if iscolumn(wavL), wavL = wavL'; end
 if iscolumn(wavR), wavR = wavR'; end
@@ -38,6 +39,8 @@ P = inputParser;
 
 maskedWavL = mask(:,1:n).*wavL(:,1:n)./frgain;
 maskedWavR = mask(:,1:n).*wavR(:,1:n)./frgain;
+maskedWav.L = maskedWavL;
+maskedWav.R = maskedWavR;
 switch method
     case 'filt' %spike-mask filtered stimulus
         %apply to filtered mixture

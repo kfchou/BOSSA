@@ -20,12 +20,12 @@ s_filt.lowFreq = low_freq;
 s_filt.highFreq = high_freq;
 azList = [-90,-60,-45,-30,0,30,45,60,90];
 
-% ILDs = gen_ILD(s_filt.lowFreq,s_filt.highFreq,s_filt.nf,s_filt.fs,azList);
-ITDs = gen_ITD(s_filt.lowFreq,s_filt.highFreq,s_filt.nf,s_filt.fs,azList)/fs*1000;
+ILDs = gen_ILD(s_filt.lowFreq,s_filt.highFreq,s_filt.nf,s_filt.fs,azList);
+% ITDs = gen_ITD(s_filt.lowFreq,s_filt.highFreq,s_filt.nf,s_filt.fs,azList)/fs*1000;
 %% plot ILD results
 
-plot(cf,ILDs)
-ylabel('ILD ')
+plot(cf,db(ILDs))
+ylabel('ILD (dB)')
 xlabel('frequency (Hz)')
 cmap = cubehelix(length(azList),1.16,2.56,1.93,1.1,[.29,.68],[.21,.83]);
 hline = findobj(gcf, 'type', 'line');
@@ -34,10 +34,11 @@ for i = 1:length(azList)
 end
 
 hleg = legend(cellstr(num2str(azList')));
-hleg.NumColumns = 1;
+hleg.NumColumns = 2;
 hleg.Title.String = {'best location','(deg az)'};
 hleg.Position = [0.1295 0.4113 0.3144 0.4057];
 hleg.EdgeColor = [1 1 1];
+hleg.Orientation = 'horizontal';
 set(gca,'FontSize',12)
 
 %% plot ITD results

@@ -2,7 +2,8 @@ function plot_voicebox_spectrogram(input,fs,cf)
 % utilizes voicebox's spectrogram calculation to plot the input
 
 % voicebox parameters
-addpath('C:\Users\Kenny\Desktop\GitHub\sap-voicebox\voicebox')
+% addpath('C:\Users\Kenny\Desktop\GitHub\sap-voicebox\voicebox')
+addpath('Z:\eng_research_hrc_binauralhearinglab\kfchou\toolboxes\voicebox')
 p.fstep=5;        % frequency resolution of initial spectrogram (Hz)
 p.fmax=8000;      % maximum frequency of initial spectrogram (Hz)
 fres = 20;        %bandwidth, from fxpefac

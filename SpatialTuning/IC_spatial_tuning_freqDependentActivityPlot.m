@@ -34,7 +34,8 @@ high_freq = 20000;
 numChannel = 64;
 fs = 44100;
 [nf,cf,bw] = getFreqChanInfo('erb',numChannel,low_freq,high_freq);
-freqs = [15670,8478,4835,1484,508,255];
+% freqs = [15670,8478,4835,1484,508,255];
+freqs = [15670,4835,508];
 [~,idx] = min(abs((cf-freqs)));
 
 j = 1;

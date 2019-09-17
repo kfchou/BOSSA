@@ -1,15 +1,23 @@
-dataLoc = 'C:\Users\Kenny\Desktop\GitHub\PISPA2.0\IC\spatial tuning data gitignore\';
+% dataLoc = 'C:\Users\Kenny\Desktop\GitHub\PISPA2.0\IC\spatial tuning data gitignore\';
+dataLoc = 'J:\Data\spatial tuning upto 20khz';
 addpath('C:\Users\Kenny\Dropbox\Sen Lab\m-toolboxes\plotting utils')
-filenames = ls([dataLoc '*at 30*']);
+filenames = ls(dataLoc);
 cmap = brewermap(size(filenames,1),'YlOrBr');
 figure;
 for i = 1:size(filenames,1)
-    load(filenames(i,:))
-    temp = squeeze(sum(sum(spk_IC)));
-    plot(temp); hold on;
+    loadedData = load(filenames(i,:));
+    subplot(4,1,1)
+    totalFiring = squeeze(sum(sum(loadedData.spk_IC)));
+    plot(totalFiring); hold on;
+    
+    subplot(4,2,2)
 end
-azList = [-90,-60,-45,-30,0,30,45,60,90];
-sourcePositions = [-90:5:90];
+if ~isfield(loadedData,'azList'), 
+    azList = [-90,-60,-45,-30,0,30,45,60,90]; 
+else
+    azList = loadedData.azList;
+end
+if ~isfield(loadedData,'sourcePositions'), sourcePositions = [-90:5:90]; end
 xticklabels(azList)
 xlabel('neuron preferred location')
 ylabel('total firing activity')
