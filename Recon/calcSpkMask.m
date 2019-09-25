@@ -6,9 +6,9 @@ function mask = calcSpkMask(spks,fs,param)
 % dimensions [time x freq x neurons]
 %
 % param: parameter structure, containing
-%   .kernel
-%   .tau (optional)
-%   .delay (optional)
+%   .kernel - 'alpha' or 'hamming'
+%   .tau (optional) - 0.01 by default
+%   .delay (optional) - 0 by default
 %
 % output is [freq x time]. Dimensions are swapped for easy plotting
 %

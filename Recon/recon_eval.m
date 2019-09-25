@@ -175,4 +175,8 @@ if ismember(4,params.type)
     st.r4pp = st4pp;
 end
 
+if ismember({'LR'},params.type)
+    load('LR2dKernel.mat','h');
+end
+
 disp('eval complete')
