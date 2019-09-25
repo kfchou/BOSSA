@@ -1,7 +1,7 @@
 function [st,rstim] = recon_eval(spks,target_wav,mix_wav,params)
+% out = recon_eval(spks,target_wav,target_spatialized,mix_wav,params)
 % performs stimulus reconstruction and objective intelligibility assessment on a set of spike trains
 % calculates TF masks. The TF masks are normalized, then directly applied to mix_wav.
-% out = recon_eval(spks,target_wav,target_spatialized,mix_wav,params)
 % Inputs:
 %	spks: a set of spike trains (from the IC for example)
 %	target_wav_loc: full path to target.wav (str), or its waveform vector
@@ -39,12 +39,24 @@ function [st,rstim] = recon_eval(spks,target_wav,mix_wav,params)
 %       (4) .r4m = rstim4mono;
 %       (4) .r4pp = rstim4pp; (post-processed)
 %
+% Reconstruction type options (params.type)
+%   "LR" - Linear Reconstruction using LRBugsKernel.mat
+%       The kernel, g, is computed using Nima Mesgarani's
+%       StimuliReconstruction.m
+%       The training stimulus is a 25Hz LPF'd hilbert envelope of an ERB-
+%       filtered 15 word utterance from the BUG corpus. The 15 words
+%       consists of randomly selected, randomly ordered talkers and words.
+%       The training response is the spiking response of the 0 deg az
+%       channel from the IC model.
+%       Both training S and R are used without binning or resampling.
+% 
 %
 % @Kenny Chou
 % 2019-04-30
 % Boston University
 % 20190726 KFC added delay parameter to calcSpkMask
 % 20190916 removed rms scaling, removed extra target parameter
+% 20190925 added linear reconstruction option
 %% set up reference
 if isa(target_wav,'char')
     target = audioread(target_wav);
@@ -176,7 +188,13 @@ if ismember(4,params.type)
 end
 
 if ismember({'LR'},params.type)
-    load('LR2dKernel.mat','h');
+    load('LR_BUGsKernel.mat','g','cf','Fs');
+    if fs~=Fs
+        warning('fs mismatch between LR recon filter and testing response');
+    end
+    [~,rstimEnv] = StimuliReconstruction([],[],spks,g);
+    rstim.LR = vocode(rstimEnv,cf,'vocode',fs);
+    st.LR = runStoi(rstim.LR,target,Fs,fs);
 end
 
 disp('eval complete')
