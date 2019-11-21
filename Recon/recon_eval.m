@@ -110,10 +110,11 @@ if ndims(masks) == 3
             mask2 = max(leftM1-rightM1,0);
             mask3 = max(rightM2-leftM2,0);
             mask4 = max(leftM2-rightM2,0);
-            spkMask = max(centerM-mask1-mask2-mask3-mask4,0);
+            spkMask = max(centerM-mask1-mask2-mask3-mask4,0.001);
         else %side masks inhibit center (old implementation)
             spkMask = centerM-params.maskRatio.*(rightM1+leftM1+leftM2+rightM2);
             spkMask(spkMask<0)=0;
+        end
     else
         error('only the difference mask for the center spatial channel is implemented');
     end
@@ -194,14 +195,16 @@ if ismember(4,params.type)
     st.r4pp = st4pp;
 end
 
-if ismember({'LR'},params.type)
-    load('LR_BUGsKernel.mat','g','cf','Fs');
-    if fs~=Fs
-        warning('fs mismatch between LR recon filter and testing response');
+if ischar(params.type)
+    if ismember({'LR'},{params.type})
+        load('LR_BUGsKernel.mat','g','cf','Fs');
+        if fs~=Fs
+            warning('fs mismatch between LR recon filter and testing response');
+        end
+        [~,rstimEnv] = StimuliReconstruction([],[],spks,g);
+        rstim.LR = vocode(rstimEnv,cf,'vocode',fs);
+        st.LR = runStoi(rstim.LR,target,Fs,fs);
     end
-    [~,rstimEnv] = StimuliReconstruction([],[],spks,g);
-    rstim.LR = vocode(rstimEnv,cf,'vocode',fs);
-    st.LR = runStoi(rstim.LR,target,Fs,fs);
 end
 
 disp('eval complete')
