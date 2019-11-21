@@ -105,8 +105,15 @@ if ndims(masks) == 3
     leftM1 = masksNorm(:,:,1);
     leftM2 = masksNorm(:,:,2);
     if params.spatialChan == 3
-        spkMask = centerM-params.maskRatio.*(rightM1+leftM1+leftM2+rightM2);
-        spkMask(spkMask<0)=0;
+        if params.maskRatio < 0 %cross-hemisphere inhibition
+            mask1 = max(rightM1-leftM1,0);
+            mask2 = max(leftM1-rightM1,0);
+            mask3 = max(rightM2-leftM2,0);
+            mask4 = max(leftM2-rightM2,0);
+            spkMask = max(centerM-mask1-mask2-mask3-mask4,0);
+        else %side masks inhibit center (old implementation)
+            spkMask = centerM-params.maskRatio.*(rightM1+leftM1+leftM2+rightM2);
+            spkMask(spkMask<0)=0;
     else
         error('only the difference mask for the center spatial channel is implemented');
     end
