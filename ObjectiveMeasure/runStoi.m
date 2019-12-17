@@ -11,6 +11,7 @@ function out = runStoi(a,b,fs_a,fs_b)
 % @Kenny Chou, BU Hearing Reserach Center
 % 20190916 - removed outdated 'warp' option
 
+if ~exist('fs_b','var'), fs_b = fs_a; end
 
 %combine channels
 if ~isvector(a)
