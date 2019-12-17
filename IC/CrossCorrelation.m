@@ -4,13 +4,14 @@ function X=CrossCorrelation(vL,vR,Ts,DT)
 %There are many fixed parameters in this function
 %so check it out if you want to change them.
 %Not all are constrained by data.
-
+%
+% KFC 2019-12-16 changed ITD step size to 10/1000 ms from 1/1000 ms
 %%%%%%%%%%%%%%%Initialize%%%%%%%%%%%%%%%%%%%
 
 %%%%%%Fixed parameters%%%%%
 %Maximum internal interaural time difference (ms)
 %Desired size of internal ITD steps (ms)
-ITD_StepSize=1/1000; % ms
+ITD_StepSize=10/1000; % ms
 %Time constant of gain control on input signals (ms)
 tau_InputGain=2;
 %Constant for gain control on input signal

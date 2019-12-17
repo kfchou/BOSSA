@@ -24,7 +24,8 @@ Ts=1000/signal.fs; % time step in ms
 noise_level = 0;
 [yL,yR,z] = EnergyEnvelopeandDifference(signal.sL,signal.sR,Ts,noise_level);
 % CrossCorrelation
-x = CrossCorrelation(signal.sL,signal.sR,Ts,DT);
+x = CrossCorrelation(signal.sL,signal.sR,Ts,DT); %speed bottleneck
+
 %% Get input to neurons
 % S = genICclInputSignals_JD_testITDonly(yL,yR,z,x,Ts,np(:,5:end),side);
 [S,Sx,Sz,sigild] = genICclInputSignals_KC(yL,yR,z,x,Ts,np(:,5:end),side,signal); %raw spike rate?

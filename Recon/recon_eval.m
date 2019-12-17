@@ -91,19 +91,24 @@ maskParam.kernel = 'alpha';
 maskParam.tau = params.tau;
 maskParam.delay = params.delay;
 masks = calcSpkMask(spks,fs,maskParam);
-masksNorm = zeros(size(masks));
+% masksNorm = zeros(size(masks));
 if ndims(masks) == 3
     % normalize masks
     for i = 1:size(masks,3)
         masksNorm(:,:,i) = masks(:,:,i)/max(max(masks(:,:,i)));
     end
-
-    % remove side channels
     centerM = masksNorm(:,:,3);
     rightM1 = masksNorm(:,:,5);
     rightM2 = masksNorm(:,:,4);
     leftM1 = masksNorm(:,:,1);
     leftM2 = masksNorm(:,:,2);
+
+    % remove side channels
+%     centerM = masks(:,:,3);
+%     rightM1 = masks(:,:,5);
+%     rightM2 = masks(:,:,4);
+%     leftM1 = masks(:,:,1);
+%     leftM2 = masks(:,:,2);
     if params.spatialChan == 3
         if params.maskRatio < 0 %cross-hemisphere inhibition
             mask1 = max(rightM1-leftM1,0);
@@ -111,9 +116,17 @@ if ndims(masks) == 3
             mask3 = max(rightM2-leftM2,0);
             mask4 = max(leftM2-rightM2,0);
             spkMask = max(centerM-mask1-mask2-mask3-mask4,0.001);
+
+            [rstimCrossMask, maskedWav] = applyMask(spkMask,mixedFiltL,mixedFiltR,frgain,'filt');
+            runStoi(rstimCrossMask,target,fs,fs)
+            figure;imagesc(spkMask); title('cross-hemisphere mask')
+
         else %side masks inhibit center (old implementation)
             spkMask = centerM-params.maskRatio.*(rightM1+leftM1+leftM2+rightM2);
             spkMask(spkMask<0)=0;
+            figure;imagesc(spkMask); title('diffMask')
+            [rstimDiffMask, maskedWav] = applyMask(spkMask,mixedFiltL,mixedFiltR,frgain,'filt');
+            runStoi(rstimDiffMask,target,fs,fs)
         end
     else
         error('only the difference mask for the center spatial channel is implemented');
