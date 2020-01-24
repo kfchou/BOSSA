@@ -1,11 +1,13 @@
-% reorganize spiking data into freq x STN x stimulus location
-dataLoc = 'J:\Data\spatial tuning upto 20khz';
-filenames = ls([dataLoc filesep '*.mat']);
-for i = 1:size(filenames,1)
-    load([dataLoc filesep filenames(i,:)]);
-    spks(:,:,i) = sum(spk_IC); %collapse along the time dimension -> freq x STN
-end
+%% reorganize spiking data into freq x STN x stimulus location
+% dataLoc = 'J:\Data\spatial tuning upto 20khz';
+% filenames = ls([dataLoc filesep '*.mat']);
+% for i = 1:size(filenames,1)
+%     load([dataLoc filesep filenames(i,:)]);
+%     spks(:,:,i) = sum(spk_IC); %collapse along the time dimension -> freq x STN
+% end
 
+% or load previously organized data
+load('Z:\eng_research_hrc_binauralhearinglab\kfchou\ActiveProjects\DataBase\WGNs 37locs 37neurons\Processed\spkActivityPerFreqPerNeuron.mat');
 %% plot1 total firing rate vs WGN location
 addpath(genpath('C:\Users\Kenny\Dropbox\Sen Lab\m-toolboxes\plotting utils'))
 figure;

@@ -7,7 +7,7 @@ function mask = calcSpkMask(spks,fs,param)
 %
 % param: parameter structure, containing
 %   .kernel - 'alpha' or 'hamming'
-%   .tau (optional) - 0.01 by default
+%   .tau (optional) - 0.01 by default, seconds
 %   .delay (optional) - 0 by default, steps
 %
 % output is [freq x time]. Dimensions are swapped for easy plotting
@@ -26,6 +26,8 @@ switch param.kernel
         A = t.*exp(-t/tau);
     case 'hamming'
         A = hamming(2000); %2000/fs = 0.05 second duration
+    case 'rect'
+        A = ones(1,tau*fs);
 end
 
 if delayLen > 0 
