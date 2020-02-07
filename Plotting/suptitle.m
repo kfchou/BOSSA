@@ -92,7 +92,7 @@ end
 axes('pos',[0 1 1 1],'visible','off','Tag','suptitle');
 ht=text(.5,titleypos-1,str);set(ht,'horizontalalignment','center','fontsize',fs);
 set(gcf,'nextplot',np);
-axes(haold); %#ok<MAXES>
+% axes(haold); %#ok<MAXES>
 if nargout,
     hout=ht;
 end
