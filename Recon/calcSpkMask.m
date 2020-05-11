@@ -19,15 +19,19 @@ function mask = calcSpkMask(spks,fs,param)
 
 if ~isfield(param,'tau'), tau = 0.01; else, tau = param.tau; end
 if isfield(param,'delay'), delayLen = param.delay; else, delayLen = 0; end
+if isfield(param,'maxKernelLen'), kernelLen = param.maxKernelLen; else, kernelLen = 0.1; end
 
+numTaps = tau*fs;
 switch param.kernel
     case 'alpha'
-        t = 0:1/fs:100/1000;
+        t = 0:1/fs:kernelLen;
         A = t.*exp(-t/tau);
     case 'hamming'
-        A = hamming(2000); %2000/fs = 0.05 second duration
+        A = hamming(numTaps);
     case 'rect'
-        A = ones(1,tau*fs);
+        A = ones(1,numTaps);
+    case 'tukey'
+        A = tukeywin(numTaps,0.35);
 end
 
 if delayLen > 0 

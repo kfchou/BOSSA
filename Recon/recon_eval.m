@@ -23,6 +23,7 @@ function [st,rstim] = recon_eval(spks,target_wav,mix_wav,params)
 %       .numChannel
 %       ----- other options -----
 %       .maskRatio
+%       .maxKernelLen - length of reconstruction kernel, default is 0.1s
 %       .type: an array containing the reconstruction conditions
 %              see outputs -> rstim for a list of conditions
 % Outputs:
@@ -57,6 +58,11 @@ function [st,rstim] = recon_eval(spks,target_wav,mix_wav,params)
 % 20190726 KFC added delay parameter to calcSpkMask
 % 20190916 removed rms scaling, removed extra target parameter
 % 20190925 added linear reconstruction option
+
+%% check optional parameters
+if isfield(param,'maxKernelLen'), maskParam.maxKernelLen = params.maxKernelLen; else, maskParam.maxKernelLen = 0.1; end
+
+
 %% set up reference
 if isa(target_wav,'char')
     target = audioread(target_wav);
