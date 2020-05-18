@@ -5,10 +5,11 @@
 %       equal gain to both L and R channels. Previous implementation was OK
 %       as long as the L and R channels were balanced (i.e. have talkers
 %       on both sides).
-% v4b - resample audio to 16kHz before processing
+% v4b - resample audio to x kHz before processing
 
 subjectNum = 21;
-cd('C:\Users\kfcho\Documents\GitHub\PISPA2.0')
+% cd('C:\Users\kfcho\Documents\GitHub\PISPA2.0')
+cd('C:\Users\Kenny\Desktop\GitHub\PISPA2.0')
 stimLoc = 'Z:\eng_research_hrc_binauralhearinglab\kfchou\ActiveProjects\BOSSAlgo\';
 addpath('Peripheral')
 addpath('HRTF')
@@ -25,7 +26,7 @@ load([blockFolderLoc blockFolders(1).name '/stimuli_info.mat']);
 low_freq = 150; %min freq of the filter
 high_freq = 8000;
 numChannel = 64;
-fs = 16000;
+fs = 44100;
 [nf,cf,bw] = getFreqChanInfo('erb',numChannel,low_freq,high_freq);
 fcoefs=MakeERBFilters(fs,cf,low_freq);
        
@@ -53,10 +54,12 @@ for block = 3%1:data.exp.nBlocks
     %%%%%%%%% Other cases: run peripheral IC model using CISPA2.0 %%%%%%%%%%
     for trial = 1%1:numTrials
         mixName = ls([currentBlockFolderLoc sprintf('wavdata trial%02i*.mat',trial)]);
-        myfile = load([currentBlockFolderLoc strtrim(mixName)],'Fs','mixed');
+        myfile = load([currentBlockFolderLoc strtrim(mixName)],'Fs','mixed','target');
+        target = myfile.target;
         mixed = myfile.mixed;
         Fs = myfile.Fs;
         mixed = resample(mixed,fs,Fs);
+        target = resample(target,fs,Fs);
         disp(['processing mixed file: ' mixName])
         
         % Peripheral model
@@ -80,6 +83,23 @@ for block = 3%1:data.exp.nBlocks
         storeBlock = fullfile(storeLoc,sprintf('block %02i',block));
         if ~exist(storeBlock,'dir'),mkdir(storeBlock);end
         mySave(sprintf('%strial_%02i_SpkIC.mat',storeBlock,trial),spk_IC,cf,fcoefs,azList,fs,length(mixed));
+        
+        spks = spkTime2Train(spk_IC,fs,length(target));
+        params = struct();
+        params.fcoefs = fcoefs;
+        params.cf = cf;
+        params.fs = fs;
+        params.spatialChan = 3;
+        params.delay = 0;
+
+        % spkMask
+        params.type = 1;
+        params.maskRatio = 0.5;
+        params.tau = 0.018;
+        [st,rstim] = recon_eval(spks,target,mixed,params);
+        pesq_mex(resample(target,16000,fs),resample(rstim.r1d,16000,fs),16000,'narrowband')
+        soundsc(rstim.r1d,fs);
+        audiowrite([storeLoc filesep 'cc1us_recon100khz.wav'],rstim.r1d*5,fs);
     end
 end
 
