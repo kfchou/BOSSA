@@ -18,10 +18,15 @@ addpath('peripheral')
 low_freq = 200; %min freq of the filter
 high_freq = 8000;
 numChannel = 64;
+fs = 44100;
 IC_param = sprintf('%iChan%i-%ihz',numChannel,low_freq,high_freq);
 [nf,cf,bw] = getFreqChanInfo('erb',numChannel,low_freq,high_freq);
-fcoefs=MakeERBFilters(40000,cf,low_freq);
+fcoefs=MakeERBFilters(fs,cf,low_freq);
 
+% resample inputs if necessary
+% do here
+
+% inputs before filtering should have rms of ~150;
 s_filt.sL=ERBFilterBank(mixedL,fcoefs); %freq*time
 s_filt.sR=ERBFilterBank(mixedR,fcoefs);
 s_filt.band = 'narrow';
@@ -59,28 +64,92 @@ params = struct();
 params.fcoefs = fcoefs;
 params.cf = cf;
 params.fs = fs;
-params.spatialChan = 3;
 params.delay = 0;
 cond = [3,4]; %conditions; reconstruction method to use.
 
-% method 1: 0-deg FR mask.
-if ismember(3,cond)
-    params.type = 1;
-    params.maskRatio = 0;
-    params.tau = 0.018;
-    [stoi,rstim] = recon_eval(spks,sum(target,2),target,mixed,params);
-    wav1 = rstim.r1d;
-    st1 = stoi.r1;
-end
+data = struct();
+params.maskRatio = 0.5;
+params.tau = 0.02;
+masks = calcSpkMask(spks,fs,params);
 
-% method 2: difference-mask
+% method 1: difference-mask
 if ismember(4,cond)
-    params.type = 1;
-    params.maskRatio = 0.5;
-    params.tau = 0.02;
-    [stoi,rstim] = recon_eval(spks,sum(target,2),target,mixed,params);
-    wav2 = rstim.r1d;
-    st2 = stoi.r2;
+    [rstim, maskedWav] = applyMask(masks.diffMask,s_filt.sL,s_filt.sR,1,'filt');
+    st = runStoi(rstim,target,fs);
+    data(end+1).type = 'DiffMask';
+    data(end).recon = rstim;
+    data(end).st = st;
 end
 
+% method 2: cross-channel-mask
+if ismember(4,cond)
+    [rstim, maskedWav] = applyMask(masks.xMask,s_filt.sL,s_filt.sR,1,'filt');
+    st = runStoi(rstim,target,fs);
+    data(end+1).type = 'CrossMask';
+    data(end).recon = rstim;
+    data(end).st = st;
+end
 
+% ===================== compare to IRM =======================%
+mixedERB_L = ERBFilterBank(mixed(:,1),fcoefs); 
+mixedERB_R = ERBFilterBank(mixed(:,2),fcoefs); 
+targERB_L = ERBFilterBank(target(:,1),fcoefs);
+targERB_R = ERBFilterBank(target(:,2),fcoefs);
+[IRMwavL,IRM,IBM] = calcIRM(targERB_L,mixedERB_L);
+[IRMwavR,IRM,IBM] = calcIRM(targERB_R,mixedERB_R);
+stoi.IRM = runStoi(target,[IRMwavL IRMwavR],fs);
+
+% soundsc([IRMwavL; IRMwavR],fs)
+
+% ======================= debugging/visualization =====================%
+% plot spike rasters
+addpath('C:\Users\Kenny\Desktop\GitHub\Plotting')
+figure;
+for i = 1:5
+    subplot(1,5,i)
+    icSpikes = logical(squeeze(spk_IC(:,:,i))');
+    plotSpikeRasterFs(icSpikes, 'PlotType','vertline', 'Fs',40000);
+    xlim([0 2000])
+    if i==1, ylabel('IC spikes'); end
+    set(gca,'Ytick',[1:64],'YtickLabel',cf)
+end
+
+% plot spectrograms
+h = figure;
+subplot(1,4,1)
+plot_vspgram(target(:,1),Fs)
+ylabel('Frequency (kHz)')
+xlabel('time (s)')
+title('target')
+set(gca,'fontsize',12)
+caxis([-150 10])
+
+subplot(1,4,2)
+plot_vspgram(sum(mixed,2)/2,Fs)
+xlabel('time (s)')
+title('Mixed')
+set(gca,'fontsize',12)
+caxis([-0 150])
+set(gca,'yticklabel',[])
+set(gca,'xticklabel',[])
+
+addpath('IRM')
+subplot(1,4,3)
+plot_vspgram(IRMwavL,Fs)
+xlabel('time (s)')
+title('IRMed')
+set(gca,'fontsize',12)
+caxis([-150 10])
+text(0.25,7500,{['STOI: ' num2str(round(stoi.IRM,2))]})
+set(gca,'yticklabel',[])
+set(gca,'xticklabel',[])
+
+subplot(1,4,4)
+plot_vspgram(data(3).recon(:,1),Fs)
+xlabel('time (s)')
+title('DiffMask')
+set(gca,'fontsize',12)
+caxis([-100 150])
+set(gca,'yticklabel',[])
+set(gca,'xticklabel',[])
+text(0.25,7500,{['STOI: ' num2str(round(data(3).st,2))]})
