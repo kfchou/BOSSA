@@ -21,9 +21,9 @@ function [spkTimes, firingrate] = ICmodel(s_filt,azList,optional)
 
 % path = [cd filesep]; %assuming current directory is set to the root directory of the project
 if strcmp(getenv('computername'),'KENNY-PC')
-    path = 'C:\Users\Kenny\Desktop\GitHub\PISPA2.0\';
+    path = 'C:\Users\Kenny\Desktop\GitHub\BOSSA\';
 else
-    path = 'C:\Users\kfcho\Documents\GitHub\PISPA2.0\';
+    path = 'C:\Users\kfcho\Documents\GitHub\BOSSA\';
 end
 
 randomness = 0;

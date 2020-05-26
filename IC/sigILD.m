@@ -25,7 +25,7 @@ S=R1+R2;
 % hold on
 % plot(z,R2,'o','color','g')
 % plot(z,S,'o','color','r')
-% %
+% 
 % zz = -1:.01:1;
 % Lt=length(zz);
 % 

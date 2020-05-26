@@ -1,17 +1,20 @@
 function X=CrossCorrelation(vL,vR,Ts,DT)
+% X=CrossCorrelationwGainControl(vL,vR,Ts,sig_noise) 
 % Calculates xcorr for all time delays
-%X=CrossCorrelationwGainControl(vL,vR,Ts,sig_noise)
-%There are many fixed parameters in this function
-%so check it out if you want to change them.
-%Not all are constrained by data.
-%
+% There are many fixed parameters in this function
+% so check it out if you want to change them.
+% Not all are constrained by data.
+% Inputs:
+%   TS = time-step of inputs
+%   DT = neurons' best latency
+%   
 % KFC 2019-12-16 changed ITD step size to 10/1000 ms from 1/1000 ms
 %%%%%%%%%%%%%%%Initialize%%%%%%%%%%%%%%%%%%%
 
 %%%%%%Fixed parameters%%%%%
 %Maximum internal interaural time difference (ms)
 %Desired size of internal ITD steps (ms)
-ITD_StepSize=10/1000; % ms
+ITD_StepSize=Ts; % ms 
 %Time constant of gain control on input signals (ms)
 tau_InputGain=2;
 %Constant for gain control on input signal
@@ -68,10 +71,9 @@ UR=X;
 %Run the cross-correlation with gain control
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%Gain control on input signals
+%Gain control on input signals - energy normalization
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%%%%%%%%%%Low pass filter%%%%%%%%%%%%%%%%
 for k=2:Lt
     gL(:,k)=eps*gL(:,k-1)+eps2*vL(:,k-1).^2; % energy equation: P2 upper right corner?? 
     gR(:,k)=eps*gR(:,k-1)+eps2*vR(:,k-1).^2;
