@@ -5,9 +5,10 @@ function spkMasks = calcSpkMask(spks,fs,param)
 % SPKS is assumed to have the dimensions [time x freq x neurons]
 %
 % param: parameter structure, containing
-%   .kernel - 'alpha','hamming','rect','tukey'
-%   .tau (optional) - 0.01 by default, seconds
-%   .delay (optional) - 0 by default, steps
+%   .kernel - 'alpha' (default),'hamming','rect','tukey'
+%   .tau - seconds, 0.02 by default
+%   .delay - taps, 0 by default
+%   .maskRatio - for diffMask calculation, 0.5 by default
 %
 % output is [freq x time]. Dimensions are swapped for easy plotting
 %   .FR - FR-mask
@@ -19,9 +20,17 @@ function spkMasks = calcSpkMask(spks,fs,param)
 %                changed varargin to param structure
 % 2020-05-25 KFC added diffmask calculation
 
-if isfield(param,'tau'), tau = param.tau; else, tau = 0.01; end
-if isfield(param,'delay'), delayLen = param.delay; else, delayLen = 0; end
-if isfield(param,'maxKernelLen'), kernelLen = param.maxKernelLen; else, kernelLen = 0.1; end
+% default parameters
+if ~isfield(param,'kernel'),        param.kernel = 'alpha';     end
+if ~isfield(param,'tau'),           param.tau = 0.02;           end
+if ~isfield(param,'delay'),         param.delay = 0;            end
+if ~isfield(param,'maxKernelLen'),  param.maxKernelLen = 0.1;   end
+if ~isfield(param,'maskRatio'),     param.maskRatio = 0.5;      end
+tau = param.tau;
+delayLen = param.delay;
+kernelLen = param.maxKernelLen;
+maskRatio = param.maskRatio;
+
 
 numTaps = tau*fs;
 switch param.kernel
@@ -72,7 +81,7 @@ if ndims(masks) == 3 && size(masks,3) == 5
     spkMasks.xMask = xMask;
     
     %difference mask, center - scale*sum(sides)
-    diffMask = centerM-params.maskRatio.*(rightM1+leftM1+leftM2+rightM2);
+    diffMask = centerM-maskRatio.*(rightM1+leftM1+leftM2+rightM2);
     diffMask(diffMask<0)=0;
     diffMask = diffMask./max(max(abs(diffMask)));  %normalize to [0,1]
     spkMasks.diffMask = diffMask;

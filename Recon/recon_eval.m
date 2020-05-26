@@ -62,6 +62,7 @@ function [scores,rstim,spkMask] = recon_eval(spks,target_wav,mix_wav,params)
 %% check optional parameters
 if isfield(params,'maxKernelLen'),  maskParam.maxKernelLen = params.maxKernelLen; else, maskParam.maxKernelLen = 0.1;   end
 if isfield(params,'kernel'),        maskParam.kernel = params.kernel;             else, maskParam.kernel = 'alpha';     end
+if ~isfield(params,'maskRatio'),     params.maskRatio = 0.5; end
 
 
 %% set up reference
