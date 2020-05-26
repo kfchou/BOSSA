@@ -1,5 +1,5 @@
-function [st,rstim] = recon_eval(spks,target_wav,mix_wav,params)
-% out = recon_eval(spks,target_wav,target_spatialized,mix_wav,params)
+function [scores,rstim,spkMask] = recon_eval(spks,target_wav,mix_wav,params)
+% out = recon_eval(spks,target_wav,mix_wav,params)
 % performs stimulus reconstruction and objective intelligibility assessment on a set of spike trains
 % calculates TF masks. The TF masks are normalized, then directly applied to mix_wav.
 % Inputs:
@@ -60,7 +60,8 @@ function [st,rstim] = recon_eval(spks,target_wav,mix_wav,params)
 % 20190925 added linear reconstruction option
 
 %% check optional parameters
-if isfield(param,'maxKernelLen'), maskParam.maxKernelLen = params.maxKernelLen; else, maskParam.maxKernelLen = 0.1; end
+if isfield(params,'maxKernelLen'),  maskParam.maxKernelLen = params.maxKernelLen; else, maskParam.maxKernelLen = 0.1;   end
+if isfield(params,'kernel'),        maskParam.kernel = params.kernel;             else, maskParam.kernel = 'alpha';     end
 
 
 %% set up reference
@@ -93,60 +94,27 @@ mixedFiltL = ERBFilterBank(mixed(:,1),fcoefs);
 mixedFiltR = ERBFilterBank(mixed(:,2),fcoefs);
 
 %% mask calculation
-maskParam.kernel = params.kernel;
 maskParam.tau = params.tau;
 maskParam.delay = params.delay;
 masks = calcSpkMask(spks,fs,maskParam);
-% masksNorm = zeros(size(masks));
-if ndims(masks) == 3
-    % normalize masks
-    for i = 1:size(masks,3)
-        masksNorm(:,:,i) = masks(:,:,i)/max(max(masks(:,:,i)));
-    end
-    centerM = masksNorm(:,:,3);
-    rightM1 = masksNorm(:,:,5);
-    rightM2 = masksNorm(:,:,4);
-    leftM1 = masksNorm(:,:,1);
-    leftM2 = masksNorm(:,:,2);
-
-    if params.spatialChan == 3
-        if params.maskRatio < 0 %cross-hemisphere inhibition
-            mask1 = max(rightM1-leftM1,0);
-            mask2 = max(leftM1-rightM1,0);
-            mask3 = max(rightM2-leftM2,0);
-            mask4 = max(leftM2-rightM2,0);
-            spkMask = max(centerM-mask1-mask2-mask3-mask4,0.001);
-
-%             [rstimCrossMask, maskedWav] = applyMask(spkMask,mixedFiltL,mixedFiltR,frgain,'filt');
-%             runStoi(rstimCrossMask,target,fs,fs)
-%             figure;imagesc(spkMask); title('cross-hemisphere mask')
-        else %side masks inhibit center (old implementation)
-            spkMask = centerM-params.maskRatio.*(rightM1+leftM1+leftM2+rightM2);
-            spkMask(spkMask<0)=0;
-%             figure;imagesc(spkMask); title('diffMask')
-%             [rstimDiffMask, maskedWav] = applyMask(spkMask,mixedFiltL,mixedFiltR,frgain,'filt');
-%             runStoi(rstimDiffMask,target,fs,fs)
-        end
-    else
-        error('only the difference mask for the center spatial channel is implemented');
-    end
-else
-    spkMask = masks;
-    thr = 0;
+if params.maskRatio >= 0
+    spkMask = masks.diffMask;
+elseif params.maskRatio <0
+    spkMask = masks.xMask;
 end
-spkMask = spkMask./max(max(abs(spkMask))); %normalize to [0,1]
 
 %% Reconstruction
 rstim = struct();
-st = struct();
+scores = struct();
 % ---------------- mask-filtered reconstruction --------------
 if ismember(1,params.type)
     [rstim1dual, maskedWav] = applyMask(spkMask,mixedFiltL,mixedFiltR,frgain,'filt');
     st1 = runStoi(rstim1dual,target,fs,fs);
+    scores.mbst = mbstoi(target(:,1),target(:,2),rstim1dual(:,1),rstim1dual(:,2),fs);
+    scores.st = st1;
 
     rstim.r1d = rstim1dual;
     rstim.tf = maskedWav;
-    st.r1 = st1;
 end
 
 % -------------- vocoded mask-filtered reconstruction ----------------
@@ -164,7 +132,7 @@ if ismember(2,params.type)
     st2 = runStoi(rstim2dual,target,fs,fs);
 
     rstim.r2d = rstim2dual;
-    st.r2 = st2;
+    scores.r2 = st2;
 end
 
 % -------------- vocoded spike-mask reconstruction ----------------
@@ -180,7 +148,7 @@ if ismember(3,params.type)
 
     rstim.r3m = rstim3;
     rstim.r3t = rstimTone;
-    st.r3 = st3;
+    scores.r3 = st3;
 end
 
 % ------------- mixed vocoding of filtered mixture envelope ----------
@@ -203,8 +171,8 @@ if ismember(4,params.type)
     rstim.r4d = rstim4dual;
     rstim.r4m = rstim4mono;
     rstim.r4pp = rstim4pp;
-    st.r4 = st4;
-    st.r4pp = st4pp;
+    scores.r4 = st4;
+    scores.r4pp = st4pp;
 end
 
 if ischar(params.type)
@@ -215,7 +183,7 @@ if ischar(params.type)
         end
         [~,rstimEnv] = StimuliReconstruction([],[],spks,g);
         rstim.LR = vocode(rstimEnv,cf,'vocode',fs);
-        st.LR = runStoi(rstim.LR,target,Fs,fs);
+        scores.LR = runStoi(rstim.LR,target,Fs,fs);
     end
 end
 
