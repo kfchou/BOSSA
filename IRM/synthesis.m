@@ -1,4 +1,4 @@
-function r = synthesisFast(mixture, mask, fRange, winLength, fs) 
+function [r,weightedMixture] = synthesis(mixture, mask, fRange, winLength, fs) 
 % synthesize a waveform signal from a mixture signal and a binary mask.
 % It amounts to an inverse filter of the gammatone filterbank. 
 % The first two variables are required. 
@@ -68,3 +68,5 @@ for c = 1:numChan
     
     r = r + temp1(c,:).*weight;
 end
+weightedMixture = temp1;
+

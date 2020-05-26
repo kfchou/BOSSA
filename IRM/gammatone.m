@@ -1,4 +1,4 @@
-function r = gammatoneFast(in, numChan, fRange, fs)
+function r = gammatone(in, numChan, fRange, fs)
 % Produce an array of filtered responses from a Gammatone filterbank.
 % The first variable is required. 
 % numChan: number of filter channels.

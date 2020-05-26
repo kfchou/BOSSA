@@ -1,6 +1,7 @@
 function [signal_out,IRM,IBM] = calcIRM(target,mixture,lc)
 % Calculate IRM
 % Inputs: filterbank-filtered sounds: Target and Mixture (Target + Noise)
+%   target & mixture: erb-filtered narrowband signals.
 %   lc: local criterion for IBM calculation (in dB)
 % Outputs: IRM-filtered signal, and the IRM itself
 %
