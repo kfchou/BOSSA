@@ -8,6 +8,9 @@
 target = [targetL targetR]; %target, for reference
 mixed = [mixedL mixedR]; % sound mixture
 
+ICrms = 100; %input gain
+mixed = mixed./mean(rms(mixed)).*ICrms; %adjust average rms of mixture
+
 % ====================== Peripheral model ======================
 % The first part of BOSS is the peripheral filtering:
 % mixedL and mixedR are the two channels of the sound mixture, with
@@ -43,10 +46,10 @@ s_filt.highFreq = high_freq;
 addpath('IC')
 
 % inputs: filtered L and R input channels and other parameters above
-randonmess = 1;
+randomness = 1;
 azList = [-60,-30,0,30,60]; % Neuron preferred directions
 tic
-[spk_IC, firingrate] = ICmodel(s_filt,randonmess);
+[spk_IC, firingrate] = ICmodel(s_filt,azList,randomness);
 toc
 
 % ===================== Reconstruction ======================
@@ -104,6 +107,7 @@ stoi.IRM = runStoi(target,[IRMwavL IRMwavR],fs);
 % ======================= debugging/visualization =====================%
 % plot spike rasters
 addpath('C:\Users\Kenny\Desktop\GitHub\Plotting')
+
 figure;
 for i = 1:5
     subplot(1,5,i)
@@ -126,30 +130,26 @@ caxis([-150 10])
 
 subplot(1,4,2)
 plot_vspgram(sum(mixed,2)/2,Fs)
-xlabel('time (s)')
 title('Mixed')
-set(gca,'fontsize',12)
 caxis([-0 150])
-set(gca,'yticklabel',[])
-set(gca,'xticklabel',[])
 
 addpath('IRM')
 subplot(1,4,3)
 plot_vspgram(IRMwavL,Fs)
-xlabel('time (s)')
 title('IRMed')
-set(gca,'fontsize',12)
 caxis([-150 10])
 text(0.25,7500,{['STOI: ' num2str(round(stoi.IRM,2))]})
-set(gca,'yticklabel',[])
-set(gca,'xticklabel',[])
 
 subplot(1,4,4)
 plot_vspgram(data(3).recon(:,1),Fs)
-xlabel('time (s)')
 title('DiffMask')
-set(gca,'fontsize',12)
 caxis([-100 150])
-set(gca,'yticklabel',[])
-set(gca,'xticklabel',[])
 text(0.25,7500,{['STOI: ' num2str(round(data(3).st,2))]})
+
+for i = 1:3
+    subplot(1,4,i+1)
+    set(gca,'yticklabel',[])
+    set(gca,'xticklabel',[])
+    xlabel('time (s)')
+    set(gca,'fontsize',12)
+end
