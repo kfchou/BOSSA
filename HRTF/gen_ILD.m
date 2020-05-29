@@ -1,4 +1,4 @@
-function [ild,params] = gen_ILD(low,high,numChan,fs,directions,savePath)
+function [ild,params] = gen_ILD(low,high,numChan,fs,directions,savePath,hrtfpath)
 % [ild,params] = gen_ILD(low,high,numChan,fs,directions,savePath)
 
 input_gain = 500;
@@ -7,7 +7,7 @@ if ~exist('directions','var')
 end
 
 for i = 1:length(directions)
-    load(sprintf('HRTF//kemar_small_horiz_%i_0.mat',directions(i)));
+    load(sprintf('%sHRTF\\kemar_small_horiz_%i_0.mat',hrtfpath,directions(i)));
     [nf,cf,bw] = getFreqChanInfo('erb',numChan,low,high);
     fcoefs=MakeERBFilters(fs,cf,low);
 
