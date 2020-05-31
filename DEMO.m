@@ -106,7 +106,7 @@ stoi.IRM = runStoi(target,[IRMwavL IRMwavR],fs);
 
 % ======================= debugging/visualization =====================%
 % plot spike rasters
-addpath('C:\Users\Kenny\Desktop\GitHub\Plotting')
+addpath('C:\Users\Kenny\Desktop\GitHub\BOSSA\Plotting')
 
 figure;
 for i = 1:5
