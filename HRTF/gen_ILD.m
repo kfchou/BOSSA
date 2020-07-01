@@ -1,9 +1,13 @@
 function [ild,params] = gen_ILD(low,high,numChan,fs,directions,savePath,hrtfpath)
 % [ild,params] = gen_ILD(low,high,numChan,fs,directions,savePath)
+% calculate ILDs based on KEMAR HRTFs
 
 input_gain = 500;
 if ~exist('directions','var')
     directions = [-90 -45 0 45 90];
+end
+if ~exist('hrtfpath','var')
+    hrtfpath = 'C:\Users\Kenny\Desktop\GitHub\BOSSA\';
 end
 
 for i = 1:length(directions)
