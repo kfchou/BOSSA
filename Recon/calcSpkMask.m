@@ -21,6 +21,7 @@ function spkMasks = calcSpkMask(spks,fs,param)
 % 2020-05-25 KFC added diffmask calculation
 
 % default parameters
+if ~exist('param','var'),           param = struct();           end
 if ~isfield(param,'kernel'),        param.kernel = 'alpha';     end
 if ~isfield(param,'tau'),           param.tau = 0.02;           end
 if ~isfield(param,'delay'),         param.delay = 0;            end

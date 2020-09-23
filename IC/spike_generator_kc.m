@@ -16,8 +16,9 @@ n_refrac=6/1000/dt; %refractory period 6ms
 spike_train=zeros(1,n);
 spike_times=[];
 
-%scale spike_rate to 1000Hz
-spike_rate = spike_rate/150*1000;
+%scale maximum spike_rate to x Hz
+x = 500;
+spike_rate = spike_rate/150*x;
 i = 1;
 while i < n
     if mod(i,1) ~= 0

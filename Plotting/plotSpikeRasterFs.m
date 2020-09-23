@@ -167,8 +167,7 @@ elseif ~isnan(rasterWindowOffset) && relSpikeStartTime~=0
 end
 
 %% Initialize figure and begin plotting logic
-% figure(figH);
-set(0,'CurrentFigure',figH);
+set(0,'currentfigure',figH);
 % axes(axH);
 hold on;
 
@@ -361,7 +360,7 @@ else % Equivalent to elseif iscell(spikes).
         error('Spike cell array must be an M x 1 vector.')
     end
     trialIsVector = cellfun(@isvector,spikes);
-    if sum(trialIsVector) < length(spikes)
+    if sum(trialIsVector) < length(spikes(~cellfun(@isempty,spikes)))
         error('Cells must contain 1 x N vectors of spike times.');
     end
     
@@ -377,9 +376,10 @@ else % Equivalent to elseif iscell(spikes).
     % instead of > 0).
     if sum(nRowsInTrial > 1) > 0 
         trialsToReformat = find(nRowsInTrial > 1);
+        if iscolumn(trialsToReformat), trialsToReformat = trialsToReformat'; end
         disp('Warning - some cells (trials) have more than 1 row. Those trials will be transposed.');
         for t = trialsToReformat
-            spikes{trialsToReformat} = spikes{trialsToReformat}';
+            spikes{t} = spikes{t}';
         end
     end
     

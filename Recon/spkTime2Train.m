@@ -4,10 +4,12 @@ function spks = spkTime2Train(spkTime,fs,timeLen)
 % inputs:
 %   spkTime = cell array of spike times. One cell for each freq channel
 %   fs      = sampling freq
-%   timeLen = length of time vector. Optional
+%   timeLen = length of time vector, taps. Optional
 
 if ~exist('timeLen','var')
-    nTime = ceil(max(max(cellfun(@max,spkTime)))*fs); %find max time vector length
+    temp = spkTime;
+    temp = temp(~cellfun('isempty',temp));
+    nTime = ceil(max(max(cellfun(@max,temp)))*fs); %find max time vector length
 else
     nTime = timeLen;
 end
