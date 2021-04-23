@@ -5,12 +5,20 @@
 % First, set up your stimuli
 % Your stimuli to be processed must have be binaural (two channels)
 
-target = [targetL targetR]; %target, for reference
-mixed = [mixedL mixedR]; % sound mixture
+% load pre-configured target and mixture
+load('Stimuli\CRM\wavdata trial02 tmr5.mat','target','mixed');
+
+% or load your own
+% target = [targetL targetR]; %target, for reference
+% mixed = [mixedL mixedR]; % sound mixture
 
 ICrms = 100; %input gain
 mixed = mixed./mean(rms(mixed)).*ICrms; %adjust average rms of mixture
 
+mixedL = mixed(:,1);
+mixedR = mixed(:,2);
+targetL = target(:,1);
+targetR = target(:,2);
 % ====================== Peripheral model ======================
 % The first part of BOSS is the peripheral filtering:
 % mixedL and mixedR are the two channels of the sound mixture, with
@@ -44,6 +52,7 @@ s_filt.highFreq = high_freq;
 % The second part of BOSS takes the filtered sound mixture and computes
 % neural responses that correspond to each spatial location and frequency
 addpath('IC')
+addpath('HRTF')
 
 % inputs: filtered L and R input channels and other parameters above
 randomness = 1;
@@ -68,7 +77,6 @@ params.fcoefs = fcoefs;
 params.cf = cf;
 params.fs = fs;
 params.delay = 0;
-cond = [3,4]; %conditions; reconstruction method to use.
 
 data = struct();
 params.maskRatio = 0.5;
@@ -76,24 +84,21 @@ params.tau = 0.02;
 masks = calcSpkMask(spks,fs,params);
 
 % method 1: difference-mask
-if ismember(4,cond)
-    [rstim, maskedWav] = applyMask(masks.diffMask,s_filt.sL,s_filt.sR,1,'filt');
-    st = runStoi(rstim,target,fs);
-    data(end+1).type = 'DiffMask';
-    data(end).recon = rstim;
-    data(end).st = st;
-end
+[rstim, maskedWav] = applyMask(masks.diffMask,s_filt.sL,s_filt.sR,1,'filt');
+st = runStoi(rstim,target,fs);
+data(end+1).type = 'DiffMask';
+data(end).recon = rstim;
+data(end).st = st;
 
 % method 2: cross-channel-mask
-if ismember(4,cond)
-    [rstim, maskedWav] = applyMask(masks.xMask,s_filt.sL,s_filt.sR,1,'filt');
-    st = runStoi(rstim,target,fs);
-    data(end+1).type = 'CrossMask';
-    data(end).recon = rstim;
-    data(end).st = st;
-end
+[rstim, maskedWav] = applyMask(masks.xMask,s_filt.sL,s_filt.sR,1,'filt');
+st = runStoi(rstim,target,fs);
+data(end+1).type = 'CrossMask';
+data(end).recon = rstim;
+data(end).st = st;
 
 % ===================== compare to IRM =======================%
+addpath('IRM')
 mixedERB_L = ERBFilterBank(mixed(:,1),fcoefs); 
 mixedERB_R = ERBFilterBank(mixed(:,2),fcoefs); 
 targERB_L = ERBFilterBank(target(:,1),fcoefs);
@@ -111,7 +116,7 @@ addpath('C:\Users\Kenny\Desktop\GitHub\BOSSA\Plotting')
 figure;
 for i = 1:5
     subplot(1,5,i)
-    icSpikes = logical(squeeze(spk_IC(:,:,i))');
+    icSpikes = logical(squeeze(spks(:,:,i))');
     plotSpikeRasterFs(icSpikes, 'PlotType','vertline', 'Fs',40000);
     xlim([0 2000])
     if i==1, ylabel('IC spikes'); end
@@ -121,7 +126,7 @@ end
 % plot spectrograms
 h = figure;
 subplot(1,4,1)
-plot_vspgram(target(:,1),Fs)
+plot_vspgram(target(:,1),Fs);
 ylabel('Frequency (kHz)')
 xlabel('time (s)')
 title('target')
@@ -129,19 +134,19 @@ set(gca,'fontsize',12)
 caxis([-150 10])
 
 subplot(1,4,2)
-plot_vspgram(sum(mixed,2)/2,Fs)
+plot_vspgram(sum(mixed,2)/2,Fs);
 title('Mixed')
 caxis([-0 150])
 
 addpath('IRM')
 subplot(1,4,3)
-plot_vspgram(IRMwavL,Fs)
+plot_vspgram(IRMwavL,Fs);
 title('IRMed')
 caxis([-150 10])
 text(0.25,7500,{['STOI: ' num2str(round(stoi.IRM,2))]})
 
 subplot(1,4,4)
-plot_vspgram(data(3).recon(:,1),Fs)
+plot_vspgram(data(3).recon(:,1),Fs);
 title('DiffMask')
 caxis([-100 150])
 text(0.25,7500,{['STOI: ' num2str(round(data(3).st,2))]})

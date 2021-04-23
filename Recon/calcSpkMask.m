@@ -87,5 +87,5 @@ if ndims(masks) == 3 && size(masks,3) == 5
     diffMask = diffMask./max(max(abs(diffMask)));  %normalize to [0,1]
     spkMasks.diffMask = diffMask;
 else
-    warning('undefined SPKS dimensions')
+    warning(['undefined SPKS dimensions for diffMask calculation: ' num2str(ndims(masks))])
 end

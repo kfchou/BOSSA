@@ -3,7 +3,7 @@ function path = CRMpath
 computername = getenv('computername');
 switch computername
     case 'KENNY-PC'
-        path = 'C:\Users\Kenny\Dropbox\Sen Lab\CRM corpus\';
+        path = 'Stimuli\CRM\';
     case 'KCHOUYOGA920'
         path = 'C:\Users\kfcho\Dropbox\Sen Lab\CRM corpus\';
     case 'BME-SEN-02'
