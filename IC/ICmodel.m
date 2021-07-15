@@ -1,4 +1,4 @@
-function [spkTimes, firingrate] = ICmodel(s_filt,azList,optional)
+function [spkTimes, firingrate] = ICmodel(s_filt,azList,optional,path)
 % [spk, firingrate] = ICmodel(s_filt,azList,randomness)
 % main function for calling Fischer's IC model
 % Inpus:
@@ -21,9 +21,9 @@ function [spkTimes, firingrate] = ICmodel(s_filt,azList,optional)
 
 % path = [cd filesep]; %assuming current directory is set to the root directory of the project
 if strcmp(getenv('computername'),'KENNY-PC')
-    path = 'C:\Users\Kenny\Desktop\GitHub\BOSSA\';
+    % path = 'C:/Users/Kenny/Desktop/GitHub/BOSSA/';
 else
-    path = 'C:\Users\kfcho\Documents\GitHub\BOSSA\';
+    % path = 'C:/Users/kfcho/Documents/GitHub/BOSSA/';
 end
 
 randomness = 0;
