@@ -41,7 +41,7 @@ spkTimes = cell(nf,nSpatialChan);
 firingrate = zeros(nf, n_signal, nSpatialChan);
 
 %load neuron parameters from Fischer's file (?)
-load([path fullfile('IC','/ICcl_CF5300_N150.mat')],'NeuronParms')
+load(fullfile(path,'IC','ICcl_CF5300_N150.mat'),'NeuronParms')
 
 % ------------------- Binaural cue Calculation ----------------------
 % translate az from degrees to milliseconds 
