@@ -7,11 +7,11 @@ if ~exist('directions','var')
     directions = [-90 -45 0 45 90];
 end
 if ~exist('hrtfpath','var')
-    hrtfpath = 'C:\Users\Kenny\Desktop\GitHub\BOSSA\';
+    hrtfpath = fullfile('..','BOSSA');
 end
 
 for i = 1:length(directions)
-    load(sprintf('%sHRTF\\kemar_small_horiz_%i_0.mat',hrtfpath,directions(i)));
+    load(sprintf('%s%sHRTF%skemar_small_horiz_%i_0.mat',hrtfpath,filesep,filesep,directions(i)));
     [nf,cf,bw] = getFreqChanInfo('erb',numChan,low,high);
     fcoefs=MakeERBFilters(fs,cf,low);
 
