@@ -1,6 +1,8 @@
 # BOSSA
 Biologically Oriented Sound Segregation Algorithm
 
+This code accompanies the [biorXiv paper](https://www.biorxiv.org/content/biorxiv/early/2020/11/04/2020.11.04.368548.full.pdf) "A biologically oriented algorithm for spatial sound segregation"
+
 DEMO.m gives an example on how to process a sound file
 
 The demo uses the Coordinate Response Measure (CRM) Corpus, by Bolia et al.[1]. Download the corpus at https://drive.google.com/drive/folders/1nFjwSCCHjhKkBhwG9LrblcXeiulUEJLX?usp=sharing
